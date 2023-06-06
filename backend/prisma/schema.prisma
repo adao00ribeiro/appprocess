@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Area {
+  id          String @id @default(uuid())
+  code        Int
+  name        String
+  description String
+  price       Float
+  quantity    Int
+
+  @@map("area")
+}
+
+model Processos {
+  id          String @id @default(uuid())
+  code        Int
+  name        String
+  description String
+  price       Float
+  quantity    Int
+
+  @@map("processos")
+}
+
+model SubProcessos {
+  id          String @id @default(uuid())
+  code        Int
+  name        String
+  description String
+  price       Float
+  quantity    Int
+
+  @@map("subprocessos")
+}
+
+model SistemaUtilizados {
+  id          String @id @default(uuid())
+  code        Int
+  name        String
+  description String
+  price       Float
+  quantity    Int
+
+  @@map("sistemautilizados")
+}
+
+model PessoasResponsaveis {
+  id          String @id @default(uuid())
+  code        Int
+  name        String
+  description String
+  price       Float
+  quantity    Int
+
+  @@map("pessoasresponsaveis")
+}
+
+model Documentacao {
+  id          String @id @default(uuid())
+  code        Int
+  name        String
+  description String
+  price       Float
+  quantity    Int
+
+  @@map("documentacao")
+}
