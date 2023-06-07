@@ -6,40 +6,45 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL_SQLITE")
 }
 
 model Area {
-  id       Int      @id @default(autoincrement())
-  name     String
-  processes Process[]
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  processes   Process[]
 }
 
 model Process {
-  id          Int          @id @default(autoincrement())
-  name        String
-  areaId      Int
-  area        Area         @relation(fields: [areaId], references: [id])
-  subprocesses Subprocess[]
-  details     ProcessDetail?
+  id            Int          @id @default(autoincrement())
+  name          String
+  areaId        Int
+  area          Area         @relation(fields: [areaId], references: [id])
+  subprocesses  Subprocess[]
+  systemsUsed   String?
+  responsibleId Int
+  responsible   Usuario      @relation(fields: [responsibleId], references: [id])
+  documentation String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }
 
 model Subprocess {
-  id           Int         @id @default(autoincrement())
-  name         String
-  processId    Int
-  process      Process     @relation(fields: [processId], references: [id])
-  parentSubprocess  Subprocess? @relation("SubprocessToSubprocess", fields: [parentSubprocessId], references: [id])
+  id                 Int          @id @default(autoincrement())
+  name               String
+  processId          Int
+  process            Process      @relation(fields: [processId], references: [id])
+  parentSubprocess   Subprocess?  @relation("SubprocessToSubprocess", fields: [parentSubprocessId], references: [id])
   parentSubprocessId Int?
-  subprocesses      Subprocess[] @relation("SubprocessToSubprocess")
+  subprocesses       Subprocess[] @relation("SubprocessToSubprocess")
 }
 
-model ProcessDetail {
-  id            Int     @id @default(autoincrement())
-  systemsUsed   String?
-  responsible   String?
-  documentation String?
-  processId    Int @unique
-  process       Process @relation(fields: [processId], references: [id])
+model Usuario {
+  id      Int       @id @default(autoincrement())
+  nome    String
+  email   String    @unique
+  senha   String
+  Process Process[]
 }

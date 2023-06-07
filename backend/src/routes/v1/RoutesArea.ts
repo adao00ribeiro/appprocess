@@ -1,4 +1,4 @@
-import AreaControllers from "../../Controllers/AreaControllers";
+import AreaControllers from "../../Controllers/AreaController";
 
 
 export default async function RoutesArea(server: any) {

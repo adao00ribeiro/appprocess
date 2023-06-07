@@ -1,0 +1,32 @@
+.containerCenter {
+  height: 100vh;
+  width: 100vw;
+}
+
+.toolbarroot {
+  width: 350px;
+  height: 70px;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 10px 5px 5px black;
+  z-index: 2;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.containerDrag {
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  background-color: rgb(15, 85, 85);
+  display: grid;
+  place-items: center;
+
+  p {
+    text-align: center;
+  }
+}

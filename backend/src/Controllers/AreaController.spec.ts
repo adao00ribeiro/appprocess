@@ -2,13 +2,11 @@
 
 import request from "supertest"
 import { app } from "../app";
-import { IAreas } from './../interfaces/IAreas'
-
-
+import { IArea } from '../interfaces/IArea'
 
 describe("Test Rotas Areas", () => {
     it('create area', async () => {
-        const payload: IAreas = {
+        const payload: IArea = {
             id: 1,
             name: 'teste',
             description: 'teste',

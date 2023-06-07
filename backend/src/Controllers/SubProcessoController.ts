@@ -1,9 +1,9 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 
 
-export default new class AreaControllers {
+export default new class SubProcessoController {
     async Create(request: FastifyRequest, reply: FastifyReply) {
-      reply.send("ok")
+        reply.send("ok")
     }
     async ListAll(request: FastifyRequest, reply: FastifyReply) {
         reply.send("ok")

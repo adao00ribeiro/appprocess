@@ -2,16 +2,19 @@ import fastify, { FastifyReply, FastifyRequest } from "fastify";
 import { FastifyError } from '@fastify/error'
 import cors from "@fastify/cors"
 import formBody from "@fastify/formbody";
-import RoutesProductsV1 from "./routes/v1/RoutesArea"
-
-
+import RoutesAreaV1 from "./routes/v1/RoutesArea"
+import RoutesProcessoV1 from "./routes/v1/RoutesProcesso"
+import RoutesSubProcessoV1 from "./routes/v1/RoutesSubProcesso"
+import RoutesUsuarioV1 from "./routes/v1/RoutesUsuario"
 const app = fastify();
-
 
 app.register(cors);
 app.register(formBody);
-app.register(RoutesProductsV1, { prefix: '/v1' });
 
+app.register(RoutesAreaV1, { prefix: '/v1' });
+app.register(RoutesProcessoV1, { prefix: '/v1' });
+app.register(RoutesSubProcessoV1, { prefix: '/v1' });
+app.register(RoutesUsuarioV1, { prefix: '/v1' });
 
 
 app.setErrorHandler((error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
