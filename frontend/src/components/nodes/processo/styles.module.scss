@@ -1,11 +1,119 @@
-.area {
+.processo {
     background-color: rgba(255, 0, 0, 0.2);
     width: 100px;
     height: 70px;
 
     h2 {
-        font-size: 1rem;
+        font-size: 0.5rem;
         color: rgba(253, 239, 239, 0.952);
         text-align: center;
+    }
+
+    input{
+        font-size: 0.5rem;
+        padding: 2px;
+        width: 100%;
+        text-align: center;
+        border: none;
+    }
+}
+
+.containerButton{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    border: 1px solid red;
+}
+
+
+
+.modal {
+    background-color: white;
+    padding: 1rem;
+    top: 50%;
+    left: 50%;
+    width: 750px;
+    height: 750px;
+    transform: translate(-50%, -50%);
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 1rem rgb(0 0 0/ 0.3);
+    z-index: 5;
+}
+
+.containerModal {
+   
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+
+
+}
+
+
+.modal::backdrop {
+    background: rgb(0 0 0/ 0.5);
+}
+
+.childdivmodal {
+    display: flex;
+    justify-content: flex-end;
+
+    button {
+        color: white;
+        border: none;
+        border-radius: 5px;
+        background-color: red;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+    }
+    button:hover {
+        
+        background-color: rgb(204, 74, 74);
+       
+    }
+}
+
+.containerInformacoes{
+    
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 2rem;
+}
+.containerInformacoesGroup{
+ 
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    gap: 2rem;
+}
+
+.containerTextArea{
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    gap: 2rem;
+    textarea {
+       
+        width: 100%;
+        height: 350px;
+        resize: none;
+      }
+}
+
+.containerButtons{
+    display: grid;
+    grid-row: row;
+    width: 30%;
+    border: 1px solid red;
+    gap: 10px;
+
+    button{
+    
+        height: 30px;
     }
 }

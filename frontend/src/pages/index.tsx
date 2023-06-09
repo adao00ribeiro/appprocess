@@ -11,12 +11,13 @@ import ReactFlow, {
     Node
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useContext, useRef, useState } from 'react';
 import * as Toolbar from '@radix-ui/react-toolbar';
 import styles from './../styles/Home.module.scss'
-import { NodeArea } from '../components/nodes/area/index';
+import NodeArea from '../components/nodes/area/index';
 import { NodeProcesso } from '../components/nodes/processo';
 import { NodeSubProcesso } from '../components/nodes/subprocesso';
+import { AuthContext } from '../context/AuthContext';
 
 const NODE_TYPES = {
     area: NodeArea,
@@ -24,77 +25,23 @@ const NODE_TYPES = {
     subprocesso: NodeSubProcesso
 }
 const initialNodes = [
-    {
-        id: '1',
-        type: 'input',
-        data: { label: 'Node 0' },
-        position: { x: 250, y: 5 },
-        className: 'light',
-    },
-    {
-        id: '2',
-        type: 'area',
-        data: { label: 'Group A' },
-        position: { x: 100, y: 100 },
-        className: 'light',
-        style: { backgroundColor: 'rgba(255, 0, 0, 0.2)', width: 200, height: 200 },
-    },
-    {
-        id: '2a',
-        data: { label: 'Node A.1' },
-        position: { x: 10, y: 50 },
-        parentNode: '2',
-    },
-    { id: '3', data: { label: 'Node 1' }, position: { x: 320, y: 100 }, className: 'light' },
-    {
-        id: '4',
-        data: { label: 'Group B' },
-        position: { x: 320, y: 200 },
-        className: 'light',
-        style: { backgroundColor: 'rgba(255, 0, 0, 0.2)', width: 300, height: 300 },
-    },
-    {
-        id: '4a',
-        data: { label: 'Node B.1' },
-        position: { x: 15, y: 65 },
-        className: 'light',
-        parentNode: '4',
-        extent: 'parent',
-    },
-    {
-        id: '4b',
-        data: { label: 'Group B.A' },
-        position: { x: 15, y: 120 },
-        className: 'light',
-        style: { backgroundColor: 'rgba(255, 0, 255, 0.2)', height: 150, width: 270 },
-        parentNode: '4',
-    },
-    {
-        id: '4b1',
-        data: { label: 'Node B.A.1' },
-        position: { x: 20, y: 40 },
-        className: 'light',
-        parentNode: '4b',
-    },
-    {
-        id: '4b2',
-        data: { label: 'Node B.A.2' },
-        position: { x: 100, y: 100 },
-        className: 'light',
-        parentNode: '4b',
-    },
+   
 ];
 
 let id = 0;
 const getId = () => `dndnode_${id++}`;
 
 export default function Home() {
+    const { zoomOnScroll,setZoomOnScroll , 
+        isSelectable , setIsSelectable,
+        panOnDrag , setpanOnDrag
+    } = useContext(AuthContext);
     const reactFlowWrapper = useRef(null);
     const dragRef = useRef(null);
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
-
+ 
     // target is the node that the node is dragged over
     const [target, setTarget] = useState<Node>(null);
 
@@ -104,7 +51,11 @@ export default function Home() {
     const onDragOver = useCallback((event) => {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
+
     }, []);
+    const onNodeMouseEnter=(event: React.MouseEvent, node: Node)=>{
+            console.log(node.data.label)
+    }
     const onDragStart = (event, nodeType) => {
         event.dataTransfer.setData('application/reactflow', nodeType);
         event.dataTransfer.effectAllowed = 'move';
@@ -123,13 +74,30 @@ export default function Home() {
             x: event.clientX - reactFlowBounds.left,
             y: event.clientY - reactFlowBounds.top,
         });
-        const newNode: Node = {
-            id: getId(),
-            type,
-            position,
-            data: { label: `${type} node` },
+      initialNodes.push( ...nodes , )
 
+      let newNode = null ;
+
+        if(type == "area"){
+            newNode = {
+                id: getId(),
+                type,
+                position,
+                data: { label: `${type}`, update: updateNode },
+                style: {
+                    width:250,
+                    height: 250
+                  }
+            }
+        }else{
+            newNode = {
+                id: getId(),
+                type,
+                position,
+                data: { label: `${type}`, update: updateNode },
+            }
         }
+       
 
         setNodes((nds) => nds.concat(newNode));
     },
@@ -138,7 +106,16 @@ export default function Home() {
     const onNodeDragStart = (evt, node) => {
         dragRef.current = node;
     };
-
+    const updateNode = (id,name) => {
+        setNodes((nodes) =>
+            nodes.map((n) => {
+                if (n.id == id  ) {
+                  n.data.label = name;
+                }
+                return n;
+            })
+        );
+      };
     const onNodeDrag = (evt, node: Node) => {
         // calculate the center point of the node from position and dimensions
         const centerX = node.position.x + node.width / 2;
@@ -161,12 +138,18 @@ export default function Home() {
         // on drag stop, we swap the colors of the nodes
         const nodeColor = node.data.label;
         const targetColor = target?.data.label;
-
+        if(dragRef.current.type === target?.type){
+            return;
+        }
+        if(node.parentNode == target?.id){
+            console.log("ja é parente")
+            return;
+        }
         setNodes((nodes) =>
             nodes.map((n) => {
-
-                if (n.id == node.id && target) {
-                    console.log(target.data.label)
+                if (n.id == node.id && target ) {
+                  n.parentNode = target.id;
+                  n.position =  target.position;
                 }
                 return n;
             })
@@ -175,6 +158,24 @@ export default function Home() {
         setTarget(null);
         dragRef.current = null;
     };
+    const recalculateNodePosition = (node) => {
+        const parent = nodes.find((n) => n.id === node.parentNode);
+        if (!parent) {
+          return node.position; // retorna a posição atual se o nó não tiver pai
+        }
+      
+        const parentX = parent.position.x;
+        const parentY = parent.position.y;
+        const childX = node.position.x;
+        const childY = node.position.y;
+      
+        const newPosition = {
+          x: parentX - childX,
+          y: parentY - childY,
+        };
+      
+        return newPosition;
+      };
     return (
         <>
             <Head>
@@ -188,15 +189,21 @@ export default function Home() {
                     nodeTypes={NODE_TYPES}
                     nodes={nodes}
                     edges={edges}
+                    onNodeMouseEnter={onNodeMouseEnter}
                     onNodesChange={onNodesChange}
                     onEdgesChange={onEdgesChange}
                     onConnect={onConnect}
+                    zoomOnScroll={zoomOnScroll}
+                    elementsSelectable={isSelectable}
+                    panOnDrag={panOnDrag}
                     onInit={setReactFlowInstance}
                     onDrop={onDrop}
                     onDragOver={onDragOver}
                     onNodeDragStart={onNodeDragStart}
                     onNodeDrag={onNodeDrag}
                     onNodeDragStop={onNodeDragStop}
+                    minZoom={0.2}
+                    maxZoom={20}
                     connectionMode={ConnectionMode.Loose}
                     className="react-flow-subflows-example"
                     fitView>
@@ -204,7 +211,7 @@ export default function Home() {
                     <Controls />
                 </ReactFlow>
                 <aside className={styles.toolbarroot}>
-                    <div className={styles.containerDrag} onDragStart={(event) => onDragStart(event, 'group')} draggable>
+                    <div className={styles.containerDrag} onDragStart={(event) => onDragStart(event, 'area')} draggable>
                         <p> Area</p>
                     </div>
                     <div className={styles.containerDrag} onDragStart={(event) => onDragStart(event, 'processo')} draggable>

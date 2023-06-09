@@ -39,6 +39,12 @@ export type IMyContextProps = {
     IsAltered: boolean
     setIsAltered: Dispatch<SetStateAction<boolean>>,
     GetArrayUsersApi: () => void;
+    zoomOnScroll:boolean;
+    setZoomOnScroll : Dispatch<SetStateAction<boolean>>,
+    isSelectable:boolean;
+    setIsSelectable : Dispatch<SetStateAction<boolean>>,
+    panOnDrag:boolean;
+    setpanOnDrag: Dispatch<SetStateAction<boolean>>,
 }
 type AuthProviderProps = {
     children: ReactNode;
@@ -55,6 +61,9 @@ export function signOut() {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+    const [zoomOnScroll, setZoomOnScroll] = useState(true);
+    const [isSelectable, setIsSelectable] = useState(true);
+    const [panOnDrag, setpanOnDrag] = useState(false);
     const [user, setUser] = useState<UserProps>({
         id: "",
         name: "",
@@ -138,7 +147,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setIsAltered(true);
     }
     return (
-        <AuthContext.Provider value={{ user, setUser, isAuthenticated, signIn, signOut, signUp, step, setStep, index, setIndex, selectClient, setSelectClient, arrayUsers, setArrayUsers, IsAltered, setIsAltered, GetArrayUsersApi }}>
+        <AuthContext.Provider value={{ user, setUser, isAuthenticated, signIn, signOut, signUp, step, setStep, index, setIndex, selectClient, setSelectClient,
+         arrayUsers, setArrayUsers, IsAltered, setIsAltered, 
+         GetArrayUsersApi,zoomOnScroll,setZoomOnScroll,
+         isSelectable,
+         setIsSelectable,
+         panOnDrag, setpanOnDrag
+         }}>
             {children}
         </AuthContext.Provider>
     )
