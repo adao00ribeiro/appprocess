@@ -1,69 +1,29 @@
-.processo {
-    background-color: rgba(255, 0, 0, 0.2);
-    width: 100px;
-    height: 50px;
-    display: flex;
-    flex-direction: column;
-    padding: 3px;
-    gap: 0.5rem;
-
-    span {
-        z-index: 5;
-        font-size: 0.5rem;
-        color: rgba(253, 239, 239, 0.952);
-        text-align: center;
-    }
-
-    input {
-        padding: 0.2rem;
-        border: none;
-        height: 10px;
-        font-size: 5px;
-        outline: none;
-    }
-}
-
-.processo:hover {
-    background-color: rgba(255, 0, 0, 0.7);
-}
-
-.container {
+.modal {
+    max-width: 100%;
+    max-height: 100%;
+    background-color: transparent;
     width: 100%;
     height: 100%;
-}
-
-.containerButton {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    border: 1px solid red;
-}
-
-
-
-.modal {
-    background-color: white;
-    padding: 1rem;
-    top: 50%;
-    left: 50%;
-    width: 750px;
-    height: 750px;
-    transform: translate(-50%, -50%);
     border: none;
-    border-radius: 0.5rem;
-    box-shadow: 0 0 1rem rgb(0 0 0/ 0.3);
     z-index: 5;
+    box-shadow: 0 0 1rem rgb(0 0 0/ 0.3);
+
 }
 
 .containerModal {
-
-    height: 100%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 1rem;
+    width: 750px;
+    background-color: white;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     gap: 1rem;
-
-
+    border-radius: 0.5rem;
+    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.3);
 }
 
 
@@ -123,10 +83,9 @@
 }
 
 .containerButtons {
-    display: grid;
-    grid-row: row;
+    display: flex;
+    flex-direction: column;
     width: 30%;
-    border: 1px solid red;
     gap: 10px;
 
     button {

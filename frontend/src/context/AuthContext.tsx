@@ -39,12 +39,16 @@ export type IMyContextProps = {
     IsAltered: boolean
     setIsAltered: Dispatch<SetStateAction<boolean>>,
     GetArrayUsersApi: () => void;
-    zoomOnScroll:boolean;
-    setZoomOnScroll : Dispatch<SetStateAction<boolean>>,
-    isSelectable:boolean;
-    setIsSelectable : Dispatch<SetStateAction<boolean>>,
-    panOnDrag:boolean;
+    zoomOnScroll: boolean;
+    setZoomOnScroll: Dispatch<SetStateAction<boolean>>,
+    isSelectable: boolean;
+    setIsSelectable: Dispatch<SetStateAction<boolean>>,
+    panOnDrag: boolean;
     setpanOnDrag: Dispatch<SetStateAction<boolean>>,
+    isDraggable: boolean;
+    setIsDraggable: Dispatch<SetStateAction<boolean>>,
+    dialogDetalheProcesso: HTMLDialogElement;
+    setdialogDetalheProcesso: Dispatch<SetStateAction<HTMLDialogElement>>,
 }
 type AuthProviderProps = {
     children: ReactNode;
@@ -64,6 +68,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [zoomOnScroll, setZoomOnScroll] = useState(true);
     const [isSelectable, setIsSelectable] = useState(true);
     const [panOnDrag, setpanOnDrag] = useState(false);
+    const [isDraggable, setIsDraggable] = useState(false);
     const [user, setUser] = useState<UserProps>({
         id: "",
         name: "",
@@ -84,8 +89,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     })
     const [arrayUsers, setArrayUsers] = useState<IClient[]>(null)
     const [IsAltered, setIsAltered] = useState(false);
+    const [dialogDetalheProcesso, setdialogDetalheProcesso] = useState<HTMLDialogElement>()
     //--------------------------------------
     useEffect(() => {
+        setdialogDetalheProcesso(document.getElementById("dialogDetalheProcesso") as HTMLDialogElement);
         const { '@nextauth.token': token } = parseCookies();
         if (token) {
             api.get('/me').then(response => {
@@ -96,6 +103,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 signOut();
             });
         }
+
     }, []);
 
     async function signIn({ email, password }: SignInProps) {
@@ -147,13 +155,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setIsAltered(true);
     }
     return (
-        <AuthContext.Provider value={{ user, setUser, isAuthenticated, signIn, signOut, signUp, step, setStep, index, setIndex, selectClient, setSelectClient,
-         arrayUsers, setArrayUsers, IsAltered, setIsAltered, 
-         GetArrayUsersApi,zoomOnScroll,setZoomOnScroll,
-         isSelectable,
-         setIsSelectable,
-         panOnDrag, setpanOnDrag
-         }}>
+        <AuthContext.Provider value={{
+            user, setUser, isAuthenticated, signIn, signOut, signUp, step, setStep, index, setIndex, selectClient, setSelectClient,
+            arrayUsers, setArrayUsers, IsAltered, setIsAltered,
+            GetArrayUsersApi, zoomOnScroll, setZoomOnScroll,
+            isSelectable,
+            setIsSelectable,
+            panOnDrag, setpanOnDrag,
+            isDraggable, setIsDraggable,
+            dialogDetalheProcesso, setdialogDetalheProcesso
+        }}>
             {children}
         </AuthContext.Provider>
     )

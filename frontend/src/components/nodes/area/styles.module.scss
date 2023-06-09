@@ -2,11 +2,13 @@
     background-color: rgba(255, 0, 0, 0.2);
     height: 100%;
     padding: 10px;
+
     h2 {
         color: rgba(253, 239, 239, 0.952);
         text-align: center;
     }
-    input{
+
+    input {
         padding: 5px;
         width: 100%;
         text-align: center;
@@ -14,3 +16,7 @@
     }
 }
 
+.line {
+    width: 100%;
+    background-color: red;
+}

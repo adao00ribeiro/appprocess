@@ -18,6 +18,7 @@ import NodeArea from '../components/nodes/area/index';
 import { NodeProcesso } from '../components/nodes/processo';
 import { NodeSubProcesso } from '../components/nodes/subprocesso';
 import { AuthContext } from '../context/AuthContext';
+import { DialogDetalheProcesso } from '../components/DialogDetalheProcesso';
 
 const NODE_TYPES = {
     area: NodeArea,
@@ -25,23 +26,25 @@ const NODE_TYPES = {
     subprocesso: NodeSubProcesso
 }
 const initialNodes = [
-   
+
 ];
 
 let id = 0;
 const getId = () => `dndnode_${id++}`;
 
 export default function Home() {
-    const { zoomOnScroll,setZoomOnScroll , 
-        isSelectable , setIsSelectable,
-        panOnDrag , setpanOnDrag
+    const { zoomOnScroll, setZoomOnScroll,
+        isSelectable, setIsSelectable,
+        panOnDrag, setpanOnDrag,
+        isDraggable, setIsDraggable
     } = useContext(AuthContext);
     const reactFlowWrapper = useRef(null);
     const dragRef = useRef(null);
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
- 
+
+    console.log(nodes)
     // target is the node that the node is dragged over
     const [target, setTarget] = useState<Node>(null);
 
@@ -53,8 +56,8 @@ export default function Home() {
         event.dataTransfer.dropEffect = 'move';
 
     }, []);
-    const onNodeMouseEnter=(event: React.MouseEvent, node: Node)=>{
-            console.log(node.data.label)
+    const onNodeMouseEnter = (event: React.MouseEvent, node: Node) => {
+        console.log(node)
     }
     const onDragStart = (event, nodeType) => {
         event.dataTransfer.setData('application/reactflow', nodeType);
@@ -74,22 +77,20 @@ export default function Home() {
             x: event.clientX - reactFlowBounds.left,
             y: event.clientY - reactFlowBounds.top,
         });
-      initialNodes.push( ...nodes , )
-
-      let newNode = null ;
-
-        if(type == "area"){
+        initialNodes.push(...nodes,)
+        let newNode = null;
+        if (type == "area") {
             newNode = {
                 id: getId(),
                 type,
                 position,
                 data: { label: `${type}`, update: updateNode },
                 style: {
-                    width:250,
+                    width: 250,
                     height: 250
-                  }
+                }
             }
-        }else{
+        } else {
             newNode = {
                 id: getId(),
                 type,
@@ -97,7 +98,7 @@ export default function Home() {
                 data: { label: `${type}`, update: updateNode },
             }
         }
-       
+
 
         setNodes((nds) => nds.concat(newNode));
     },
@@ -106,16 +107,16 @@ export default function Home() {
     const onNodeDragStart = (evt, node) => {
         dragRef.current = node;
     };
-    const updateNode = (id,name) => {
+    const updateNode = (id, name) => {
         setNodes((nodes) =>
             nodes.map((n) => {
-                if (n.id == id  ) {
-                  n.data.label = name;
+                if (n.id == id) {
+                    n.data.label = name;
                 }
                 return n;
             })
         );
-      };
+    };
     const onNodeDrag = (evt, node: Node) => {
         // calculate the center point of the node from position and dimensions
         const centerX = node.position.x + node.width / 2;
@@ -135,21 +136,25 @@ export default function Home() {
     };
 
     const onNodeDragStop = (evt, node: Node) => {
+
+
         // on drag stop, we swap the colors of the nodes
         const nodeColor = node.data.label;
         const targetColor = target?.data.label;
-        if(dragRef.current.type === target?.type){
+        if (node.type === target?.type) {
             return;
         }
-        if(node.parentNode == target?.id){
+        if (node.parentNode == target?.id) {
             console.log("ja é parente")
             return;
         }
+
         setNodes((nodes) =>
             nodes.map((n) => {
-                if (n.id == node.id && target ) {
-                  n.parentNode = target.id;
-                  n.position =  target.position;
+                if (n.id == node.id && target) {
+                    n.parentNode = target.id;
+                    n.zIndex = 1;
+                    n.position = calculatePosition({ x: evt.x, y: evt.y }, n);
                 }
                 return n;
             })
@@ -158,24 +163,20 @@ export default function Home() {
         setTarget(null);
         dragRef.current = null;
     };
-    const recalculateNodePosition = (node) => {
+    const calculatePosition = (positionmouse, node) => {
+
         const parent = nodes.find((n) => n.id === node.parentNode);
         if (!parent) {
-          return node.position; // retorna a posição atual se o nó não tiver pai
+            return node.position; // retorna a posição atual se o nó não tiver pai
         }
-      
-        const parentX = parent.position.x;
-        const parentY = parent.position.y;
-        const childX = node.position.x;
-        const childY = node.position.y;
-      
-        const newPosition = {
-          x: parentX - childX,
-          y: parentY - childY,
-        };
-      
-        return newPosition;
-      };
+        const parentPosition = parent.position;
+        const childPosition = node.position;
+
+        const childX = positionmouse.x - parentPosition.x + node.width / 2;
+        const childY = positionmouse.y - parentPosition.y + node.height / 2;
+
+        return { x: childX, y: childY };
+    };
     return (
         <>
             <Head>
@@ -184,6 +185,8 @@ export default function Home() {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
+
+            <DialogDetalheProcesso></DialogDetalheProcesso>
             <div className={styles.containerCenter} ref={reactFlowWrapper}>
                 <ReactFlow
                     nodeTypes={NODE_TYPES}
@@ -196,6 +199,7 @@ export default function Home() {
                     zoomOnScroll={zoomOnScroll}
                     elementsSelectable={isSelectable}
                     panOnDrag={panOnDrag}
+                    nodesDraggable={isDraggable}
                     onInit={setReactFlowInstance}
                     onDrop={onDrop}
                     onDragOver={onDragOver}
@@ -210,6 +214,7 @@ export default function Home() {
                     <Background />
                     <Controls />
                 </ReactFlow>
+
                 <aside className={styles.toolbarroot}>
                     <div className={styles.containerDrag} onDragStart={(event) => onDragStart(event, 'area')} draggable>
                         <p> Area</p>
