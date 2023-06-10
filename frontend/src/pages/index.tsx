@@ -44,7 +44,7 @@ export default function Home() {
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
 
-    console.log(nodes)
+
     // target is the node that the node is dragged over
     const [target, setTarget] = useState<Node>(null);
 
@@ -57,7 +57,17 @@ export default function Home() {
 
     }, []);
     const onNodeMouseEnter = (event: React.MouseEvent, node: Node) => {
-        console.log(node)
+
+        node.selected = true;
+
+    }
+    const onNodeMouseMove = (event: React.MouseEvent, node: Node) => {
+        const target = GetTarget(node);
+        console.log(target)
+    }
+    const onNodeMouseLeave = (event: React.MouseEvent, node: Node) => {
+        //console.log(event)
+        //console.log(node.position)
     }
     const onDragStart = (event, nodeType) => {
         event.dataTransfer.setData('application/reactflow', nodeType);
@@ -89,6 +99,7 @@ export default function Home() {
                     width: 250,
                     height: 250
                 }
+
             }
         } else {
             newNode = {
@@ -98,8 +109,6 @@ export default function Home() {
                 data: { label: `${type}`, update: updateNode },
             }
         }
-
-
         setNodes((nds) => nds.concat(newNode));
     },
         [reactFlowInstance]
@@ -118,6 +127,9 @@ export default function Home() {
         );
     };
     const onNodeDrag = (evt, node: Node) => {
+        setTarget(GetTarget(node));
+    };
+    const GetTarget = (node: Node) => {
         // calculate the center point of the node from position and dimensions
         const centerX = node.position.x + node.width / 2;
         const centerY = node.position.y + node.height / 2;
@@ -132,34 +144,38 @@ export default function Home() {
                 n.id !== node.id // this is needed, otherwise we would always find the dragged node
         );
 
-        setTarget(targetNode);
-    };
-
+        return targetNode;
+    }
     const onNodeDragStop = (evt, node: Node) => {
-
-
         // on drag stop, we swap the colors of the nodes
         const nodeColor = node.data.label;
         const targetColor = target?.data.label;
         if (node.type === target?.type) {
+            console.log("nao pode ")
             return;
         }
-        if (node.parentNode == target?.id) {
-            console.log("ja é parente")
+        if (node.type == "area") {
+            console.log("area nao é filho de ninguem")
             return;
         }
+        if (target) {
+            target.selected = false;
+            setNodes((nodes) =>
 
-        setNodes((nodes) =>
-            nodes.map((n) => {
-                if (n.id == node.id && target) {
-                    n.parentNode = target.id;
-                    n.zIndex = 1;
-                    n.position = calculatePosition({ x: evt.x, y: evt.y }, n);
-                }
-                return n;
-            })
-        );
+                nodes.map((n) => {
+                    if (n.id == node.id && n.parentNode != target?.id) {
+                        n.parentNode = target.id;
+                        n.zIndex = 1;
+                        n.position = calculatePosition({ x: evt.x, y: evt.y }, n);
+                    }
+                    return n;
+                })
+            );
+        }
 
+
+
+        node.zIndex = 2
         setTarget(null);
         dragRef.current = null;
     };
@@ -185,14 +201,15 @@ export default function Home() {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-
             <DialogDetalheProcesso></DialogDetalheProcesso>
             <div className={styles.containerCenter} ref={reactFlowWrapper}>
                 <ReactFlow
                     nodeTypes={NODE_TYPES}
                     nodes={nodes}
                     edges={edges}
+                    onNodeMouseMove={onNodeMouseMove}
                     onNodeMouseEnter={onNodeMouseEnter}
+                    onNodeMouseLeave={onNodeMouseLeave}
                     onNodesChange={onNodesChange}
                     onEdgesChange={onEdgesChange}
                     onConnect={onConnect}

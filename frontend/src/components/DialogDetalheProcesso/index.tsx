@@ -6,7 +6,10 @@ import { PanelAddInfo } from "../PanelAddInfo";
 
 
 export function DialogDetalheProcesso() {
-    const { dialogDetalheProcesso, setdialogDetalheProcesso
+    const { zoomOnScroll, setZoomOnScroll,
+        isSelectable, setIsSelectable,
+        panOnDrag, setpanOnDrag,
+        isDraggable, setIsDraggable, dialogDetalheProcesso, setdialogDetalheProcesso
     } = useContext(AuthContext);
     const [isShownSistema, setisShownSistema] = useState(false);
     const [isShownResponsaveis, setisShownResponsaveis] = useState(false);
@@ -23,16 +26,23 @@ export function DialogDetalheProcesso() {
     }
     const closePanelSistemas = () => {
         setisShownSistema(false)
+
     }
     const closePanelResponsaveis = () => {
         setisShownResponsaveis(false)
     }
-
+    function HandleCloseDialogDetalhe() {
+        setZoomOnScroll(true);
+        setIsSelectable(true);
+        setpanOnDrag(true);
+        setIsDraggable(true);
+        dialogDetalheProcesso.close();
+    }
     return (
         <dialog id="dialogDetalheProcesso" className={styles.modal}>
             <div className={styles.containerModal}>
                 <div className={styles.childdivmodal}>
-                    <button onClick={() => { dialogDetalheProcesso.close() }}>X</button>
+                    <button onClick={() => { HandleCloseDialogDetalhe() }}>X</button>
                 </div>
                 <div className={styles.containerInformacoes}>
                     <h1>{ }</h1>

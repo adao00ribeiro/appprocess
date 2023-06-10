@@ -1,8 +1,11 @@
 import { NodeProps, Handle, Position, NodeResizeControl, NodeResizer } from "reactflow";
 import styles from "./styles.module.scss"
 import { memo, useState } from 'react';
+export interface NodeAreaProps extends NodeProps {
+    color: "#ff0071";
+}
+function NodeArea(props: NodeAreaProps) {
 
-function NodeArea(props: NodeProps) {
     const [editing, setEditing] = useState(false);
     const [text, setText] = useState(props.data.label);
 
@@ -23,7 +26,7 @@ function NodeArea(props: NodeProps) {
 
     return (
         <>
-            <NodeResizer color="#ff0071" isVisible={props.selected} minWidth={250} minHeight={250}
+            <NodeResizer color={props.color} isVisible={props.selected} minWidth={250} minHeight={250}
 
             />
             <Handle type="target" position={Position.Left} />

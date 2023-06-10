@@ -67,8 +67,8 @@ export function signOut() {
 export function AuthProvider({ children }: AuthProviderProps) {
     const [zoomOnScroll, setZoomOnScroll] = useState(true);
     const [isSelectable, setIsSelectable] = useState(true);
-    const [panOnDrag, setpanOnDrag] = useState(false);
-    const [isDraggable, setIsDraggable] = useState(false);
+    const [panOnDrag, setpanOnDrag] = useState(true);
+    const [isDraggable, setIsDraggable] = useState(true);
     const [user, setUser] = useState<UserProps>({
         id: "",
         name: "",
