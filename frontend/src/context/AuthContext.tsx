@@ -6,6 +6,7 @@ import { api } from "../services/apiClient";
 import { IClient } from "../interfaces/IClient";
 import { ToastContainer, toast } from 'react-toastify';
 import { IMessage } from "../interfaces/IMessage";
+import { NodeProps } from "reactflow";
 type SignInProps = {
     email: string;
     password: string;
@@ -49,6 +50,7 @@ export type IMyContextProps = {
     setIsDraggable: Dispatch<SetStateAction<boolean>>,
     dialogDetalheProcesso: HTMLDialogElement;
     setdialogDetalheProcesso: Dispatch<SetStateAction<HTMLDialogElement>>,
+    nodeSelecionado:NodeProps , setnodeSelecionado: Dispatch<SetStateAction<NodeProps>>,
 }
 type AuthProviderProps = {
     children: ReactNode;
@@ -90,6 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [arrayUsers, setArrayUsers] = useState<IClient[]>(null)
     const [IsAltered, setIsAltered] = useState(false);
     const [dialogDetalheProcesso, setdialogDetalheProcesso] = useState<HTMLDialogElement>()
+    const [nodeSelecionado , setnodeSelecionado] = useState<NodeProps>()
     //--------------------------------------
     useEffect(() => {
         setdialogDetalheProcesso(document.getElementById("dialogDetalheProcesso") as HTMLDialogElement);
@@ -163,7 +166,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setIsSelectable,
             panOnDrag, setpanOnDrag,
             isDraggable, setIsDraggable,
-            dialogDetalheProcesso, setdialogDetalheProcesso
+            dialogDetalheProcesso, setdialogDetalheProcesso,
+            nodeSelecionado,setnodeSelecionado
         }}>
             {children}
         </AuthContext.Provider>

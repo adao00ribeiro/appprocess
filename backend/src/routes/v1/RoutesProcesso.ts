@@ -1,10 +1,10 @@
-import AreaControllers from "../../Controllers/AreaController";
+import ProcessoController from './../../Controllers/ProcessoController'
 
 
 export default async function RoutesProcesso(server: any) {
-    server.post("/processos", AreaControllers.Create);
-    server.get("/processos", AreaControllers.ListAll);
-    server.put("/processos", AreaControllers.Update);
-    server.delete("/processos/:id?", AreaControllers.Delete);
+    server.post("/processos", ProcessoController.Create);
+    server.get("/processos", ProcessoController.ListAll);
+    server.put("/processos", ProcessoController.Update);
+    server.delete("/processos/:id?", ProcessoController.Delete);
 }
 

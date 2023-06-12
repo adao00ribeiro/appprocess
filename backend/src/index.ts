@@ -3,7 +3,7 @@ import { app } from "./app"
 const PORT = 3333
 const HOSTNAME = 'http://localhost'
 
-app.listen({ port: 3000 }, (err, address) => {
+app.listen({ port: PORT }, (err, address) => {
     if (err) {
         app.log.error(err)
     }

@@ -1,12 +1,11 @@
-import { IArea } from "../../interfaces/IArea";
+
+import { IUsuario } from "../../interfaces/IUsuario";
 import prismaclient from "../../prisma";
 
-export async function CreateUsuarioService(area: IArea) {
-    const areasaved = await prismaclient.area.create({
-        data: area
+export async function CreateUsuarioService(usuario: IUsuario) {
+    const user = await prismaclient.usuario.create({
+        data: usuario
     })
-
-
-    return areasaved;
+    return user;
 }
 

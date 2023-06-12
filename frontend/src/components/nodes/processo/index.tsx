@@ -5,12 +5,15 @@ import { AuthContext } from "../../../context/AuthContext";
 /*Permitir ver o detalhamento dos processos, como sistemas utilizados, pessoas
 responsáveis e documentação
 */
+
+
 export function NodeProcesso(props: NodeProps) {
     const { zoomOnScroll, setZoomOnScroll,
         isSelectable, setIsSelectable,
         panOnDrag, setpanOnDrag,
         isDraggable, setIsDraggable,
-        dialogDetalheProcesso, setdialogDetalheProcesso
+        dialogDetalheProcesso, setdialogDetalheProcesso,
+        nodeSelecionado,setnodeSelecionado
     } = useContext(AuthContext);
 
     const [editing, setEditing] = useState(false);
@@ -26,6 +29,15 @@ export function NodeProcesso(props: NodeProps) {
     };
 
     const handleInputChange = (event) => {
+        const novo = {
+            ...nodeSelecionado,
+            data: {
+              ...nodeSelecionado.data,
+              label: text,
+            },
+          }
+        setnodeSelecionado(novo);
+        props.data.update(novo);
         setText(event.target.value);
     };
 
@@ -39,6 +51,7 @@ export function NodeProcesso(props: NodeProps) {
     };
 
     function openModal() {
+        setnodeSelecionado(props);
         setZoomOnScroll(false)
         setIsSelectable(false);
         setpanOnDrag(false);
@@ -46,7 +59,6 @@ export function NodeProcesso(props: NodeProps) {
         dialogDetalheProcesso.showModal();
     }
     return (
-
         <>
             <div className={styles.processo} >
                 {editing ? (
@@ -59,13 +71,10 @@ export function NodeProcesso(props: NodeProps) {
                 ) : (
                     <span className={styles.areaTitle} onClick={handleTextClick}>{text}</span>
                 )}
-                <div className={styles.container} onClick={() => { openModal() }}>
-
-
+                <div className={styles.container} onKeyDown={()=>{console.log("entrer")}} onDoubleClick={() => { openModal() }}>
                     <Handle id="top" type="target" position={Position.Top} onConnect={onConnect} />
                     <Handle id="right" type="source" position={Position.Right} />
                     <Handle id="bottom" type="source" position={Position.Bottom} />
-
                 </div>
             </div >
         </>

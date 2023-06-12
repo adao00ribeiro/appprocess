@@ -17,7 +17,6 @@ export function canSSRGuest<P>(fn:GetServerSideProps<P>){
                 }
             }
         }
-
         return await fn(ctx)
     }
 }

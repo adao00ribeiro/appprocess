@@ -155,7 +155,6 @@ export default function DashBoard() {
             {botconnected &&
               <button onClick={() => { botexcluir() }}>Excluir Bot</button>
             }
-
           </div>
         </dialog>
         <main className={styles.main}>

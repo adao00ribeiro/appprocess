@@ -1,19 +1,24 @@
-import { MouseEventHandler, useContext, useState } from "react";
+import { ChangeEvent,KeyboardEvent, useContext, useState } from "react";
 import styles from "./styles.module.scss"
 import { AuthContext } from "../../context/AuthContext";
 import { PanelAddInfo } from "../PanelAddInfo";
 
+export interface IDialogDetalheProcesso{
+    setNodes:(nodeprops)=>void
+}
+export function DialogDetalheProcesso(props:IDialogDetalheProcesso) {
 
-
-export function DialogDetalheProcesso() {
     const { zoomOnScroll, setZoomOnScroll,
         isSelectable, setIsSelectable,
         panOnDrag, setpanOnDrag,
-        isDraggable, setIsDraggable, dialogDetalheProcesso, setdialogDetalheProcesso
+        isDraggable, setIsDraggable, dialogDetalheProcesso, setdialogDetalheProcesso,
+        nodeSelecionado,setnodeSelecionado
     } = useContext(AuthContext);
+   
     const [isShownSistema, setisShownSistema] = useState(false);
     const [isShownResponsaveis, setisShownResponsaveis] = useState(false);
     const [position, setPosition] = useState([0, 0]) // State to save the position where you 
+
     const OpenPanelSistema = (event: React.MouseEvent<HTMLButtonElement>) => {
         setisShownSistema(true)
         setPosition([event.pageX, event.pageY]) // Save the pos where you clicked
@@ -26,7 +31,6 @@ export function DialogDetalheProcesso() {
     }
     const closePanelSistemas = () => {
         setisShownSistema(false)
-
     }
     const closePanelResponsaveis = () => {
         setisShownResponsaveis(false)
@@ -38,6 +42,17 @@ export function DialogDetalheProcesso() {
         setIsDraggable(true);
         dialogDetalheProcesso.close();
     }
+    const onChangeHandle = (event:ChangeEvent<HTMLTextAreaElement>)=>{
+        const novo = {
+            ...nodeSelecionado,
+            data: {
+              ...nodeSelecionado.data,
+              descricao: event.target.value,
+            },
+          };
+        setnodeSelecionado(novo);
+          props.setNodes(novo)
+    }
     return (
         <dialog id="dialogDetalheProcesso" className={styles.modal}>
             <div className={styles.containerModal}>
@@ -45,11 +60,11 @@ export function DialogDetalheProcesso() {
                     <button onClick={() => { HandleCloseDialogDetalhe() }}>X</button>
                 </div>
                 <div className={styles.containerInformacoes}>
-                    <h1>{ }</h1>
+                    <h1>{nodeSelecionado?.data?.label}</h1>
                     <div className={styles.containerInformacoesGroup}>
                         <div className={styles.containerTextArea}>
-                            <label htmlFor="">Descricao</label>
-                            <textarea placeholder="Descrição"></textarea>
+                            <label htmlFor="textarea">Descricao</label>
+                            <textarea id="textarea" value={nodeSelecionado?.data?.descricao} placeholder="" onChange={onChangeHandle}></textarea>
                         </div>
                         <div className={styles.containerButtons}>
                             <button onClick={OpenPanelSistema}>Sistemas utilizados</button>
@@ -59,10 +74,38 @@ export function DialogDetalheProcesso() {
                 </div>
             </div>
             {isShownSistema &&
-                <PanelAddInfo title={"Sistemas Utilizados"} position={position} callback={closePanelSistemas} ></PanelAddInfo>}
+                <PanelAddInfo  
+                info={nodeSelecionado.data.sistemasUtilizados} 
+                save={(sistemasUtilizados) => {
+                    const novo = {
+                        ...nodeSelecionado,
+                        data: {
+                          ...nodeSelecionado.data,
+                          sistemasUtilizados: sistemasUtilizados,
+                        },
+                      }
+                    setnodeSelecionado(novo);
+                    props.setNodes(novo)
+                  }}
+
+
+                title={"Sistemas Utilizados"} 
+                position={position} 
+                callback={closePanelSistemas} ></PanelAddInfo>}
 
             {isShownResponsaveis &&
-                <PanelAddInfo title={"Responsaveis"} position={position} callback={closePanelResponsaveis}></PanelAddInfo>
+               <PanelAddInfo info={nodeSelecionado.data.responsaveis}
+               save={(responsaveis) => {
+                setnodeSelecionado({
+                  ...nodeSelecionado,
+                  data: {
+                    ...nodeSelecionado.data,
+                    responsaveis: responsaveis,
+                  },
+                });
+              }}
+                 title={"Responsaveis"} position={position} 
+                 callback={closePanelResponsaveis}></PanelAddInfo>
             }
 
         </dialog>
