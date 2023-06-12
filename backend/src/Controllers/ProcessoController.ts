@@ -1,21 +1,21 @@
-import { FastifyReply, FastifyRequest } from "fastify";
-import {INodeProcesso} from './../interfaces/INodeProcesso'
+import { Request, Response, NextFunction } from "express"
+import { INodeProcesso } from './../interfaces/INodeProcesso'
 import { CreateProcessoService } from "../services/processo/CreateProcessoService";
 import { ListProcessoService } from "../services/processo/ListProcessoService";
 
 export default new class ProcessoController {
-    async Create(request: FastifyRequest, reply: FastifyReply) {
+    async Create(request: Request, reply: Response) {
         const processo = request.body as INodeProcesso
         return reply.send(await CreateProcessoService(processo));
     }
-    async ListAll(request: FastifyRequest, reply: FastifyReply) {
+    async ListAll(request: Request, reply: Response) {
         reply.send(await ListProcessoService());
     }
-    async Update(request: FastifyRequest, reply: FastifyReply) {
-        const processo = request.body 
-        console.log("update",processo);
+    async Update(request: Request, reply: Response) {
+        const processo = request.body
+        console.log("update", processo);
     }
-    async Delete(request: FastifyRequest, reply: FastifyReply) {
+    async Delete(request: Request, reply: Response) {
         reply.send("ok")
     }
 }

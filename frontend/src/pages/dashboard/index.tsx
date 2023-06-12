@@ -1,169 +1,379 @@
 import Head from 'next/head'
-import { Inter } from '@next/font/google'
-import React, { useContext, useEffect, useState } from 'react'
-import { BiExit } from "react-icons/bi"
+
+import ReactFlow, {
+  addEdge,
+  Background,
+  useNodesState,
+  useEdgesState,
+  Controls,
+  Connection,
+  ConnectionMode,
+  Node,
+  updateEdge,
+  NodeProps
+} from 'reactflow';
+import 'reactflow/dist/style.css';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles.module.scss'
-import { AuthContext } from '../../context/AuthContext'
-import { Cadastro } from '../../components/Cadastro'
-import { canSSRAuth } from '../../utils/canSSRAuth'
-import { Inicio } from '../../components/Inicio'
-import { api } from '../../services/apiClient'
-import { Processo } from '../../components/Processo'
-import { Configuracao } from '../../components/Configuracao'
+import NodeArea from '../../components/nodes/area/index';
+import { NodeProcesso } from '../../components/nodes/processo';
+import { NodeSubProcesso } from '../../components/nodes/subprocesso';
+import { AuthContext } from '../../context/AuthContext';
+import { DialogDetalheProcesso } from '../../components/DialogDetalheProcesso';
+import DefaultEdge from '../../components/edges';
+import { api } from '../../services/apiClient';
+import { canSSRAuth } from '../../utils/canSSRAuth';
 
+const NODE_TYPES = {
+  area: NodeArea,
+  processo: NodeProcesso,
+  subprocesso: NodeSubProcesso
+}
+const EDGE_TYPES = {
+  default: DefaultEdge
+}
 
-const inter = Inter({ subsets: ['latin'] })
+export default function DashBoard({ initial }) {
 
-export default function DashBoard() {
-  const { step, setStep, user, signOut } = useContext(AuthContext)
-  const [botconnected, setBotConnected] = useState(false)
-  const [dialogQRcode, setDialogQRcode] = useState<HTMLDialogElement>()
-  const [qrcode, setqrcode] = useState("")
-  const [TextStatusBot, setTextStatusBot] = useState("");
-  const [ErrorBot, setErrorBot] = useState(false);
+  const edgeUpdateSuccessful = useRef(true);
+  const { user, zoomOnScroll, setZoomOnScroll,
+    isSelectable, setIsSelectable,
+    panOnDrag, setpanOnDrag,
+    isDraggable, setIsDraggable,
+
+  } = useContext(AuthContext);
+  const reactFlowWrapper = useRef(null);
+  const dragRef = useRef(null);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initial);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [reactFlowInstance, setReactFlowInstance] = useState(null);
+
+  // target is the node that the node is dragged over
+  const [target, setTarget] = useState<Node>(null);
+  const onKeydown = (event: KeyboardEvent) => {
+    if (event.key == "Delete") {
+      DeleteNode();
+    }
+  };
+  const memoizedUser = useMemo(() => user, [user]);
 
 
   useEffect(() => {
-    setDialogQRcode(document.getElementById("dialogQRcode") as HTMLDialogElement);
-    const response = api.post('/bot/status');
-    response.then(data => {
-      if (data.data.connected) {
-        setBotConnected(data.data.connected);
-      }
-    }).catch(err => {
-      console.log(err)
-    })
+
+
+    document.addEventListener('keydown', onKeydown);
+
+    return () => {
+      document.removeEventListener('keydown', onKeydown);
+    };
+
+  }, [onKeydown]);
+
+
+  const onConnect = useCallback((connection: Connection) => {
+
+    setEdges((eds) => addEdge(connection, eds));
+  }, []);
+
+  const onEdgeUpdateStart = useCallback(() => {
+    edgeUpdateSuccessful.current = false;
+  }, []);
+
+  const onEdgeUpdate = useCallback((oldEdge, newConnection) => {
+    edgeUpdateSuccessful.current = true;
+    setEdges((els) => updateEdge(oldEdge, newConnection, els));
+  }, []);
+
+  const onEdgeUpdateEnd = useCallback((_, edge) => {
+    if (!edgeUpdateSuccessful.current) {
+      setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+    }
+
+    edgeUpdateSuccessful.current = true;
+  }, []);
+
+  const onDragOver = useCallback((event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
 
   }, []);
-  const Select = () => {
-    if (step == 1) {
-      return (<Inicio></Inicio>)
-    }
-    else if (step == 2) {
-      return <Cadastro></Cadastro>
-    }
-    else if (step == 3) {
-      return <Processo openModal={openModal}></Processo >
-    }
-    else if (step == 4) {
-      return <Configuracao ></Configuracao >
-    }
+  const onNodeMouseEnter = (event: React.MouseEvent, node: Node) => {
+    console.log(nodes);
+    console.log(edges)
   }
-  const iconConnected = () => {
-    if (botconnected) {
-      return <div className={styles.statusWhatappGreen} onClick={() => { openModal() }} ></div>
-    }
-    return <div className={styles.statusWhatappRed} onClick={() => { openModal() }}></div>
-  }
-  const handleExit = () => {
-    signOut();
-  }
-  function openModal() {
+  const onNodeMouseMove = (event: React.MouseEvent, node: Node) => {
 
-    botconectar();
-    dialogQRcode.showModal();
   }
-
-  function closeModal() {
-    dialogQRcode.close();
+  const onNodeMouseLeave = (event: React.MouseEvent, node: Node) => {
+    //console.log(event)
+    //console.log(node.position)
   }
-  async function botconectar() {
-    const response = await api.post(`/bot`, { email: user.email });
-    const myinteval = setInterval(() => {
-      if (response.data == "CRIADO" || response.data == "RODANDO") {
+  const onDragStart = (event, nodeType) => {
+    event.dataTransfer.setData('application/reactflow', nodeType);
+    event.dataTransfer.effectAllowed = 'move';
+  };
+  const onDrop = useCallback((event) => {
+    event.preventDefault();
+    const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+    const type = event.dataTransfer.getData('application/reactflow');
 
-        setTextStatusBot("Bot Criado.");
-        botstatus();
-        clearInterval(myinteval);
+    // check if the dropped element is valid
+    if (typeof type === 'undefined' || !type) {
+      return;
+    }
+
+    const position = reactFlowInstance.project({
+      x: event.clientX - reactFlowBounds.left,
+      y: event.clientY - reactFlowBounds.top,
+    });
+
+    let newNode = null;
+    if (type == "area") {
+      newNode = {
+        data: {
+          label: `${type}`,
+          descricao: "",
+          update: updateNode,
+        },
+        dragging: false,
+        height: 250,
+        id: crypto.randomUUID(),
+        parentNode: null,
+        position,
+        positionAbsolute: position,
+        style: {
+          width: 250,
+          height: 250
+        },
+        type,
+        width: 250,
+        zIndex: 1,
       }
-    }, 2000)
+      api.post("/v1/areas", newNode).then((response) => {
+        console.log(response);
+      })
+    } else if (type == "processo") {
+      newNode =
+      {
+        data: {
+          label: `${type}`,
+          descricao: "",
+          sistemasUtilizados: [],
+          responsaveis: [],
+          update: updateNode,
+        },
+        dragging: false,
+        height: 50,
+        id: crypto.randomUUID(),
+        parentNode: null,
+        position,
+        positionAbsolute: position,
+        style: {
+          width: 100,
+          height: 50
+        },
+        type,
+        width: 100,
+        zIndex: 1,
+      }
+      api.post("/v1/processos", newNode).then((response) => {
+        console.log(response);
+      })
+    } else if (type == "subprocesso") {
+      newNode =
+      {
+        data: {
+          label: `${type}`,
+          descricao: "",
+          sistemasUtilizados: [],
+          responsaveis: [],
+          update: updateNode,
 
-  }
-  function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  async function botstatus() {
-    setErrorBot(false);
-    setTextStatusBot("verificando status do bot");
-    const response = await api.post(`/bot/status`, { email: user.email });
-    const qr_code = response.data.qr_code;
-    const connected = response.data.connected;
-    console.log(response.data);
-    if (qr_code) {
-      setTextStatusBot("");
-      setqrcode(qr_code.base64Qr)
-    } else {
-      setqrcode("")
+        },
+        dragging: false,
+        height: 50,
+        id: crypto.randomUUID(),
+        parentNode: null,
+        position,
+        positionAbsolute: position,
+        style: {
+          width: 100,
+          height: 50
+        },
+        type,
+        width: 100,
+        zIndex: 1,
+      }
+      api.post("/v1/subprocessos", newNode)
     }
-    setBotConnected(connected);
-    if (connected && dialogQRcode.open) {
-      closeModal();
-    } else if (response.data == "error") {
-      setErrorBot(true);
-      setTextStatusBot("");
-      return null;
-    } else {
-      await delay(10000);
-      botstatus();
-    }
+    setNodes((nds) => nds.concat(newNode));
+  },
+    [reactFlowInstance]
+  );
+  const onNodeDragStart = (evt, node) => {
+    dragRef.current = node;
+  };
+  const updateNode = (nodeprops: NodeProps) => {
+    setNodes((nodes) =>
+      nodes.map((n) => {
+        if (n.id == nodeprops.id) {
+          console.log("fez o update")
+          n.data.label = nodeprops.data.label;
+          n.data.descricao = nodeprops.data.descricao;
+          n.data.sistemasUtilizados = nodeprops.data.sistemasUtilizados;
+          n.data.responsaveis = nodeprops.data.responsaveis;
+        }
+        return n;
+      })
+    );
+  };
+  const onNodeDrag = (evt, node: Node) => {
+    setTarget(GetTarget(node));
+  };
+  const GetTarget = (node: Node) => {
+    // calculate the center point of the node from position and dimensions
+    const centerX = node.positionAbsolute?.x + node.width / 2;
+    const centerY = node.positionAbsolute?.y + node.height / 2;
 
+    // find a node where the center point is inside
+    const targetNode = nodes.find(
+      (n) =>
+        centerX > n.positionAbsolute?.x &&
+        centerX < n.positionAbsolute?.x + n.width &&
+        centerY > n.positionAbsolute?.y &&
+        centerY < n.positionAbsolute?.y + n.height &&
+        n.id !== node.id // this is needed, otherwise we would always find the dragged node
+    );
+
+    return targetNode;
   }
-  async function botexcluir() {
-    const response = await api.delete(`/bot/delete`);
-    console.log(response)
+  const onNodeDragStop = (evt, node: Node) => {
+    // on drag stop, we swap the colors of the nodes
+
+    if (node.type === target?.type) {
+      console.log("nao pode ")
+      return;
+    }
+    if (node.type == "area") {
+      console.log("area nao é filho de ninguem")
+      return;
+    }
+    if (target) {
+      target.selected = false;
+      const tempnodes = nodes.map((n) => {
+        if (n.id == node.id && n.parentNode != target?.id) {
+          n.parentNode = target.id;
+          n.zIndex = 1;
+          n.position = calculatePosition({ x: evt.x, y: evt.y }, n);
+        }
+        return n;
+      })
+      setNodes((nodes) =>
+        tempnodes
+      );
+      api.put("/v1/processos", { tempnodes });
+    }
+    node.zIndex = 2
+    setTarget(null);
+    dragRef.current = null;
+
+  };
+  const calculatePosition = (positionmouse, node: Node) => {
+
+    const parent = nodes.find((n) => n.id === node.parentNode);
+    if (!parent) {
+      return node.position; // retorna a posição atual se o nó não tiver pai
+    }
+    const parentPosition = parent.position;
+    const childPosition = node.positionAbsolute;
+
+    const childX = childPosition.x - parentPosition.x + node.width / 2;
+    const childY = childPosition.y - parentPosition.y + node.height / 2;
+
+    return { x: childX, y: childY };
+  };
+  const DeleteNode = () => {
+
+    const tempNodes = nodes.filter((n) => n.selected);
+    DeleteEdges(tempNodes[0].id)
+
+    setNodes((nodes) =>
+      nodes.filter((n) => !n.selected)
+    );
+  }
+  const DeleteEdges = (idnode) => {
+    console.log(idnode);
+    setEdges((edges) =>
+      edges.filter((n) => n.source != idnode && n.target != idnode)
+    );
   }
   return (
     <>
       <Head>
-        <title>Secretary Helper</title>
+        <title>DashBoard</title>
         <meta name="description" content="A software to assist secretaries in organizing tasks and information." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.root}>
-        <header>
-          <div className={styles.containerHeader1}>
-            <img src='/LOGOSECRETARY.png'></img>
-            <div className={styles.containerEmailExit}>
-              {iconConnected()}
-              <span>{user.email}</span>
-              <button onClick={handleExit}> <BiExit size={40}></BiExit></button>
-            </div>
+      <DialogDetalheProcesso
+        setNodes={(nodeprops) => {
+          updateNode(nodeprops)
+        }}
+      ></DialogDetalheProcesso>
+      <div className={styles.containerCenter} ref={reactFlowWrapper}>
+        <ReactFlow
+          nodeTypes={NODE_TYPES}
+          edgeTypes={EDGE_TYPES}
+          nodes={nodes}
+          edges={edges}
+          defaultEdgeOptions={{
+            type: 'default',
+          }}
+          onNodeMouseMove={onNodeMouseMove}
+          onNodeMouseEnter={onNodeMouseEnter}
+          onNodeMouseLeave={onNodeMouseLeave}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onEdgeUpdate={onEdgeUpdate}
+          onEdgeUpdateStart={onEdgeUpdateStart}
+          onEdgeUpdateEnd={onEdgeUpdateEnd}
+          onConnect={onConnect}
+          zoomOnScroll={zoomOnScroll}
+          elementsSelectable={isSelectable}
+          panOnDrag={panOnDrag}
+          nodesDraggable={isDraggable}
+          onInit={setReactFlowInstance}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          onNodeDragStart={onNodeDragStart}
+          onNodeDrag={onNodeDrag}
+          onNodeDragStop={onNodeDragStop}
+          minZoom={0.2}
+          maxZoom={20}
+          connectionMode={ConnectionMode.Loose}
+          className="react-flow-subflows-example"
+          fitView>
+          <Background />
+          <Controls />
+        </ReactFlow>
+
+        <aside className={styles.toolbarroot}>
+          <div className={styles.containerDrag} onDragStart={(event) => onDragStart(event, 'area')} draggable>
+            <p> Area</p>
           </div>
-          <nav>
-            <a onClick={() => { setStep(1) }}>Inicio</a>
-            <a onClick={() => { setStep(2) }}>Cadastro</a>
-            <a onClick={() => { setStep(3) }}>Processos</a>
-            <a onClick={() => { setStep(4) }}>Configuracao</a>
-          </nav>
-        </header>
-        <dialog id="dialogQRcode" className={styles.modal}>
-          <div className={styles.containerModal}>
-            <div className={styles.childdivmodal}>
-              <button onClick={() => { closeModal() }}>X</button>
-            </div>
-            <div className={styles.containerImagemQrCode}>
-              {qrcode != "" && !botconnected &&
-                <img src={qrcode}></img>
-              }
-              <h1>{TextStatusBot}</h1>
-              {ErrorBot &&
-                <button onClick={() => { botconectar() }}>Tentar Novamente</button>
-              }
-            </div>
-            {botconnected &&
-              <button onClick={() => { botexcluir() }}>Excluir Bot</button>
-            }
+          <div className={styles.containerDrag} onDragStart={(event) => onDragStart(event, 'processo')} draggable>
+            <p>Processo</p>
           </div>
-        </dialog>
-        <main className={styles.main}>
-          {Select()}
-        </main>
-      </main>
+          <div className={styles.containerDrag} onDragStart={(event) => onDragStart(event, 'subprocesso')} draggable>
+            <p>Sub-Processo</p>
+          </div>
+        </aside>
+
+      </div>
     </>
   )
 }
+
 export const getServerSideProps = canSSRAuth(async (ctx) => {
   return {
     props: {}

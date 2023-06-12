@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "Usuario" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "nome" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "senha" TEXT NOT NULL
@@ -24,7 +24,7 @@ CREATE TABLE "NodeArea" (
     "type" TEXT NOT NULL,
     "width" INTEGER NOT NULL,
     "zIndex" INTEGER NOT NULL,
-    "usuarioId" INTEGER NOT NULL,
+    "usuarioId" TEXT NOT NULL,
     CONSTRAINT "NodeArea_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "Usuario" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -48,7 +48,7 @@ CREATE TABLE "NodeProcesso" (
     "type" TEXT NOT NULL,
     "width" INTEGER NOT NULL,
     "zIndex" INTEGER NOT NULL,
-    "usuarioId" INTEGER NOT NULL,
+    "usuarioId" TEXT NOT NULL,
     CONSTRAINT "NodeProcesso_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "Usuario" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -60,7 +60,7 @@ CREATE TABLE "Edge" (
     "target" TEXT NOT NULL,
     "targetHandle" TEXT NOT NULL,
     "type" TEXT NOT NULL,
-    "usuarioId" INTEGER NOT NULL,
+    "usuarioId" TEXT NOT NULL,
     CONSTRAINT "Edge_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "Usuario" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 

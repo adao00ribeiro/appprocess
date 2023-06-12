@@ -5,38 +5,35 @@ import dotenv from 'dotenv';
 import { GetUserByEmailService } from "./GetUsuarioByEmailService";
 dotenv.config()
 
-    export async function AuthUsuarioService({ email, password }: IAuth) {
+export async function AuthUsuarioService({ email, senha }: IAuth) {
 
-       // const serviceUser = new GetUserByEmailService();
-       //= await serviceUser.execute(email);
-       const user = null;
+    const user = await GetUserByEmailService(email);
 
-        if (!user) {
-            throw new Error("Email nao existe");
-        }
-        const passwordMatch = await compare(password, user.password);
-
-        if (!passwordMatch) {
-            throw new Error("Senha Incorreta");
-        }
-        //gerar token
-        const token = sign(
-            {
-                name: user.name,
-                email: user.email
-            },
-            process.env.JWT_SECRET,
-            {
-                subject: user.id,
-                expiresIn: '30d'
-            }
-        )
-
-        return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            modelmessage: user.modelmessage,
-            token: token,
-        }
+    if (!user) {
+        throw new Error("Email nao existe");
     }
+    const passwordMatch = await compare(senha, user.senha);
+
+    if (!passwordMatch) {
+        throw new Error("Senha Incorreta");
+    }
+    //gerar token
+    const token = sign(
+        {
+            name: user.nome,
+            email: user.email
+        },
+        process.env.JWT_SECRET,
+        {
+            subject: user.id.toString(),
+            expiresIn: '30d'
+        }
+    )
+
+    return {
+        id: user.id,
+        name: user.nome,
+        email: user.email,
+        token: token,
+    }
+}

@@ -3,13 +3,12 @@ import React, { createContext, Dispatch, ReactNode, SetStateAction, useEffect, u
 import { destroyCookie, parseCookies, setCookie } from 'nookies'
 import Router from "next/router";
 import { api } from "../services/apiClient";
-import { IClient } from "../interfaces/IClient";
 import { ToastContainer, toast } from 'react-toastify';
-import { IMessage } from "../interfaces/IMessage";
 import { NodeProps } from "reactflow";
+import { INodeArea } from "../interfaces/INodeArea";
 type SignInProps = {
     email: string;
-    password: string;
+    senha: string;
 }
 type SignUpProps = {
     name: string;
@@ -20,8 +19,9 @@ type UserProps = {
     id: string;
     name: string;
     email: string;
-    modelmessage: string;
+    nodeareas: INodeArea[];
 }
+
 export type IMyContextProps = {
     user: UserProps;
     setUser: Dispatch<SetStateAction<UserProps>>,
@@ -33,10 +33,6 @@ export type IMyContextProps = {
     setStep: Dispatch<SetStateAction<number>>,
     index: number,
     setIndex: Dispatch<SetStateAction<number>>,
-    selectClient: IClient,
-    setSelectClient: Dispatch<SetStateAction<IClient>>,
-    arrayUsers: IClient[],
-    setArrayUsers: Dispatch<SetStateAction<IClient[]>>,
     IsAltered: boolean
     setIsAltered: Dispatch<SetStateAction<boolean>>,
     GetArrayUsersApi: () => void;
@@ -50,7 +46,7 @@ export type IMyContextProps = {
     setIsDraggable: Dispatch<SetStateAction<boolean>>,
     dialogDetalheProcesso: HTMLDialogElement;
     setdialogDetalheProcesso: Dispatch<SetStateAction<HTMLDialogElement>>,
-    nodeSelecionado:NodeProps , setnodeSelecionado: Dispatch<SetStateAction<NodeProps>>,
+    nodeSelecionado: NodeProps, setnodeSelecionado: Dispatch<SetStateAction<NodeProps>>,
 }
 type AuthProviderProps = {
     children: ReactNode;
@@ -67,6 +63,7 @@ export function signOut() {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+
     const [zoomOnScroll, setZoomOnScroll] = useState(true);
     const [isSelectable, setIsSelectable] = useState(true);
     const [panOnDrag, setpanOnDrag] = useState(true);
@@ -75,7 +72,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         id: "",
         name: "",
         email: "",
-        modelmessage: ""
+        nodeareas: [],
     });
 
     const isAuthenticated = !!user;
@@ -89,18 +86,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
         consult_date: "",
         next_consultation_date: "",
     })
-    const [arrayUsers, setArrayUsers] = useState<IClient[]>(null)
+
     const [IsAltered, setIsAltered] = useState(false);
     const [dialogDetalheProcesso, setdialogDetalheProcesso] = useState<HTMLDialogElement>()
-    const [nodeSelecionado , setnodeSelecionado] = useState<NodeProps>()
+    const [nodeSelecionado, setnodeSelecionado] = useState<NodeProps>()
     //--------------------------------------
     useEffect(() => {
         setdialogDetalheProcesso(document.getElementById("dialogDetalheProcesso") as HTMLDialogElement);
+
         const { '@nextauth.token': token } = parseCookies();
         if (token) {
-            api.get('/me').then(response => {
-                const { id, name, email, modelmessage } = response.data;
-                setUser({ id, name, email, modelmessage });
+            api.get('/v1/usuarios/info').then(response => {
+                const { id, name, email } = response.data;
+                const nodeareas: INodeArea[] = response.data.nodeareas;
+                setUser({ id, name, email, nodeareas })
+
             }).catch(error => {
                 //se deu erro deslogamos o user.
                 signOut();
@@ -109,14 +109,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     }, []);
 
-    async function signIn({ email, password }: SignInProps) {
+    async function signIn({ email, senha }: SignInProps) {
 
         try {
-            const response = await api.post("/session", {
-                email, password
+            const response = await api.post("/v1/session", {
+                email, senha
             })
 
-            const { id, name, token, modelmessage } = response.data;
+            const { id, name, token, nodeareas } = response.data;
             setCookie(undefined, '@nextauth.token', token, {
                 maxAge: 60 * 60 * 24 * 30,
                 path: "/"
@@ -126,7 +126,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     id,
                     name,
                     email,
-                    modelmessage
+                    nodeareas
                 }
             )
             api.defaults.headers['Authorization'] = `Bearer ${token}`
@@ -134,7 +134,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             toast.success("Logado com sucesso")
             await setTimeout(() => {
                 Router.push("/dashboard")
-            }, 500);
+            }, 1000);
 
         } catch (error) {
             toast.error("Email ou senha errado");
@@ -152,22 +152,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     }
     async function GetArrayUsersApi() {
-        const response = await api.get("/client");
-        setArrayUsers(response.data);
-        setIndex(response.data.length - 1)
-        setIsAltered(true);
+
     }
     return (
         <AuthContext.Provider value={{
-            user, setUser, isAuthenticated, signIn, signOut, signUp, step, setStep, index, setIndex, selectClient, setSelectClient,
-            arrayUsers, setArrayUsers, IsAltered, setIsAltered,
+            user, setUser, isAuthenticated, signIn, signOut, signUp, step, setStep, index, setIndex,
+            IsAltered, setIsAltered,
             GetArrayUsersApi, zoomOnScroll, setZoomOnScroll,
             isSelectable,
             setIsSelectable,
             panOnDrag, setpanOnDrag,
             isDraggable, setIsDraggable,
             dialogDetalheProcesso, setdialogDetalheProcesso,
-            nodeSelecionado,setnodeSelecionado
+            nodeSelecionado, setnodeSelecionado
         }}>
             {children}
         </AuthContext.Provider>

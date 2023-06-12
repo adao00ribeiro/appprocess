@@ -1,18 +1,27 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import { Request, Response, NextFunction } from "express"
+import { CreateUsuarioService } from "../services/usuario/CreateUsuarioService";
+import { IUsuario } from "../interfaces/IUsuario";
+import { GetUsuarioByIdService } from "../services/usuario/GetUsuarioByIdService";
 
 
 export default new class UsuarioController {
-    async Create(request: FastifyRequest, reply: FastifyReply) {
-        reply.send("ok")
+    async Create(req: Request, res: Response) {
+        const usuario = req.body as IUsuario;
+        res.send(await CreateUsuarioService(usuario))
     }
-    async ListAll(request: FastifyRequest, reply: FastifyReply) {
-        reply.send("ok")
+    async ListAll(req: Request, res: Response) {
+        res.json("ok")
     }
-    async Update(request: FastifyRequest, reply: FastifyReply) {
-        reply.send("ok")
+    async Update(req: Request, res: Response) {
+        res.json("ok")
     }
-    async Delete(request: FastifyRequest, reply: FastifyReply) {
-        reply.send("ok")
+    async Delete(req: Request, res: Response) {
+        res.json("ok")
+    }
+    async GetAllInfo(req: Request, res: Response) {
+        const user_id = req.user_id;
+
+        res.json(await GetUsuarioByIdService(user_id));
     }
 }
 

@@ -1,5 +1,5 @@
 :root {
-  --Background: #451355;
+  --Background: #ffffff;
   --ColorClaro: #efbedd;
   --ColorWhiteGray: #e6dddd;
   --ColorLilas: #f988ff;
@@ -8,7 +8,7 @@
   --H1: #501557;
   --A: #8d4297;
   --AHOVER: #a24cad;
-  --Button: #8d4297;
+  --Button: #1f1879;
 }
 
 * {

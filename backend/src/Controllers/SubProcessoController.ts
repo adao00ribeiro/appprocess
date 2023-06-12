@@ -1,17 +1,17 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import { Request, Response, NextFunction } from "express"
 
 
 export default new class SubProcessoController {
-    async Create(request: FastifyRequest, reply: FastifyReply) {
+    async Create(request: Request, reply: Response) {
         reply.send("ok")
     }
-    async ListAll(request: FastifyRequest, reply: FastifyReply) {
+    async ListAll(request: Request, reply: Response) {
         reply.send("ok")
     }
-    async Update(request: FastifyRequest, reply: FastifyReply) {
+    async Update(request: Request, reply: Response) {
         reply.send("ok")
     }
-    async Delete(request: FastifyRequest, reply: FastifyReply) {
+    async Delete(request: Request, reply: Response) {
         reply.send("ok")
     }
 }

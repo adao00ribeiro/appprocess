@@ -1,10 +1,11 @@
+import { Router, Request, Response, NextFunction } from "express"
 import AreaControllers from "../../Controllers/AreaController";
 
+export const RoutesSubProcesso = Router();
 
-export default async function RoutesSubProcesso(server: any) {
-    server.post("/subprocessos", AreaControllers.Create);
-    server.get("/subprocessos", AreaControllers.ListAll);
-    server.put("/subprocessos", AreaControllers.Update);
-    server.delete("/subprocessos/:id?", AreaControllers.Delete);
-}
+RoutesSubProcesso.post("/subprocessos", AreaControllers.Create);
+RoutesSubProcesso.get("/subprocessos", AreaControllers.ListAll);
+RoutesSubProcesso.put("/subprocessos", AreaControllers.Update);
+RoutesSubProcesso.delete("/subprocessos/:id?", AreaControllers.Delete);
+
 

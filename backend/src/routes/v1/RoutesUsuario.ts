@@ -1,10 +1,15 @@
+import { Router, Request, Response, NextFunction } from "express"
 import AreaControllers from "../../Controllers/AreaController";
+import UsuarioController from "../../Controllers/UsuarioController";
+import { IsAuthenticated } from "../../middlewares/IsAuthenticated";
+
+export const RoutesUsuario = Router();
 
 
-export default async function RoutesUsuario(server: any) {
-    server.post("/usuarios", AreaControllers.Create);
-    server.get("/usuarios", AreaControllers.ListAll);
-    server.put("/usuarios", AreaControllers.Update);
-    server.delete("/usuarios/:id?", AreaControllers.Delete);
-}
+RoutesUsuario.post("/usuarios", UsuarioController.Create);
+RoutesUsuario.get("/usuarios", IsAuthenticated, UsuarioController.ListAll);
+RoutesUsuario.get("/usuarios/info", IsAuthenticated, UsuarioController.GetAllInfo);
+RoutesUsuario.put("/usuarios", IsAuthenticated, UsuarioController.Update);
+RoutesUsuario.delete("/usuarios/:id?", IsAuthenticated, UsuarioController.Delete);
+
 

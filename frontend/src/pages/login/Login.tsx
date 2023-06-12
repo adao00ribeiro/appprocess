@@ -14,7 +14,7 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Login() {
   const [inputs, setInputs] = useState({
     email: "",
-    password: ""
+    senha: ""
   })
   const [loading, setLoading] = useState(false)
 
@@ -22,12 +22,12 @@ export default function Login() {
   async function handleLogin(event: FormEvent) {
     event.preventDefault();
 
-    if (inputs.email === "" || inputs.password === "") {
+    if (inputs.email === "" || inputs.senha === "") {
       toast.warning("Preencha os campos!")
       return
     }
     setLoading(true);
-    await signIn({ email: inputs.email, password: inputs.password });
+    await signIn({ email: inputs.email, senha: inputs.senha });
     setLoading(false);
   }
   const handleInput = (event: ChangeEvent<HTMLInputElement>) => {
@@ -47,7 +47,7 @@ export default function Login() {
         <div className={styles.login}>
           <form onSubmit={handleLogin}>
             <input value={inputs.email} type="email" onChange={handleInput} name='email' placeholder='Seu email'></input>
-            <input value={inputs.password} type="password" onChange={handleInput} name='password' placeholder='Sua senha'></input>
+            <input value={inputs.senha} type="password" onChange={handleInput} name='senha' placeholder='Sua senha'></input>
             <button type="submit" disabled={loading} > Acessar</button>
           </form>
           <Link href={'/registrar'}> Não possui uma conta? Cadastre-se</Link>

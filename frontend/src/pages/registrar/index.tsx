@@ -49,7 +49,7 @@ export default function Registrar() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className={styles.containerCenter}>
-        <Image src="/LOGOSECRETARY.png" alt='Logo Secretary Helper' width={200} height={200} />
+
         <h1>Cadastre-se</h1>
         <div className={styles.login}>
           <form onSubmit={handleSubmit}>

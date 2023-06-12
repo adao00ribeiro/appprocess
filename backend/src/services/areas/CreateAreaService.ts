@@ -2,11 +2,11 @@
 import { INodeArea } from "../../interfaces/INodeArea";
 import prismaclient from "../../prisma";
 
-export async function CreateAreaService(area: INodeArea) {
+export async function CreateAreaService(userid: string, area: INodeArea) {
 
     const areasaved = await prismaclient.nodeArea.create({
         data: {
-            id:area.id,
+            id: area.id,
             label: area.data.label,
             descricao: area.data.descricao,
             dragging: area.dragging,
@@ -22,10 +22,10 @@ export async function CreateAreaService(area: INodeArea) {
             type: area.type,
             width: area.width,
             zIndex: area.zIndex,
-            usuarioId:area.usuarioId
+            usuarioId: userid
         }
     })
     return areasaved;
-  
+
 }
 

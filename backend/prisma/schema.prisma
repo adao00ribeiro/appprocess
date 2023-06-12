@@ -11,64 +11,66 @@ datasource db {
 }
 
 model Usuario {
-  id      Int       @id @default(autoincrement())
-  nome    String
-  email   String    @unique
-  senha   String
-  nodeareas NodeArea[]
+  id            String         @id @default(uuid())
+  nome          String
+  email         String         @unique
+  senha         String
+  nodeareas     NodeArea[]
   nodeprocessos NodeProcesso[]
-  edges Edge[]
+  edges         Edge[]
 }
+
 model NodeArea {
-  id          String   @id
-  label       String
-  descricao   String?
-  dragging    Boolean
-  height      Int
-  parentNode  String?
-  positionX   Float      @map("position.x")
-  positionY   Float      @map("position.y")
-  positionAbsoluteX Float @map("positionAbsolute.x")
-  positionAbsoluteY Float @map("positionAbsolute.y")
-  selected    Boolean?
-  styleWidth  Int      @map("style.width")
-  styleHeight Int      @map("style.height")
-  type        String
-  width       Int
-  zIndex      Int
-  usuarioId   Int       
-  usuario     Usuario   @relation(fields: [usuarioId], references: [id])
+  id                String   @id
+  label             String
+  descricao         String?
+  dragging          Boolean
+  height            Int
+  parentNode        String?
+  positionX         Float    @map("position.x")
+  positionY         Float    @map("position.y")
+  positionAbsoluteX Float    @map("positionAbsolute.x")
+  positionAbsoluteY Float    @map("positionAbsolute.y")
+  selected          Boolean?
+  styleWidth        Int      @map("style.width")
+  styleHeight       Int      @map("style.height")
+  type              String
+  width             Int
+  zIndex            Int
+  usuarioId         String
+  usuario           Usuario  @relation(fields: [usuarioId], references: [id])
 }
+
 model NodeProcesso {
-  id          String   @id 
-  label       String
-  descricao   String?
+  id                 String   @id
+  label              String
+  descricao          String?
   sistemasUtilizados String?
   responsaveis       String?
-  dragging    Boolean
-  height      Int
-  parentNode  String?
-  positionX   Float      @map("position.x")
-  positionY   Float      @map("position.y")
-  positionAbsoluteX Float @map("positionAbsolute.x")
-  positionAbsoluteY Float @map("positionAbsolute.y")
-  selected    Boolean?
-  styleWidth  Int      @map("style.width")
-  styleHeight Int      @map("style.height")
-  type        String
-  width       Int
-  zIndex      Int
-  usuarioId   Int       
-  usuario     Usuario   @relation(fields: [usuarioId], references: [id])
+  dragging           Boolean
+  height             Int
+  parentNode         String?
+  positionX          Float    @map("position.x")
+  positionY          Float    @map("position.y")
+  positionAbsoluteX  Float    @map("positionAbsolute.x")
+  positionAbsoluteY  Float    @map("positionAbsolute.y")
+  selected           Boolean?
+  styleWidth         Int      @map("style.width")
+  styleHeight        Int      @map("style.height")
+  type               String
+  width              Int
+  zIndex             Int
+  usuarioId          String
+  usuario            Usuario  @relation(fields: [usuarioId], references: [id])
 }
+
 model Edge {
-  id           String   @id
+  id           String  @id
   source       String
   sourceHandle String
   target       String
   targetHandle String
   type         String
-  usuarioId   Int       
-  usuario     Usuario   @relation(fields: [usuarioId], references: [id])
+  usuarioId    String
+  usuario      Usuario @relation(fields: [usuarioId], references: [id])
 }
-

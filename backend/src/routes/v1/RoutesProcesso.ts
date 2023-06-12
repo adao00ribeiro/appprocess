@@ -1,10 +1,11 @@
+import { Router, Request, Response, NextFunction } from "express"
 import ProcessoController from './../../Controllers/ProcessoController'
+export const RoutesProcesso = Router();
 
 
-export default async function RoutesProcesso(server: any) {
-    server.post("/processos", ProcessoController.Create);
-    server.get("/processos", ProcessoController.ListAll);
-    server.put("/processos", ProcessoController.Update);
-    server.delete("/processos/:id?", ProcessoController.Delete);
-}
+RoutesProcesso.post("/processos", ProcessoController.Create);
+RoutesProcesso.get("/processos", ProcessoController.ListAll);
+RoutesProcesso.put("/processos", ProcessoController.Update);
+RoutesProcesso.delete("/processos/:id?", ProcessoController.Delete);
+
 
