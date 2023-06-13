@@ -1,12 +1,11 @@
 import { INodeProcesso } from "../../interfaces/INodeProcesso";
 import prismaclient from "../../prisma";
 
-export async function CreateProcessoService(processo: INodeProcesso) {
+export async function CreateProcessoService(iduser:string , processo: INodeProcesso) {
 
 
     const nodesaved = await prismaclient.nodeProcesso.create({
         data: {
-            id:processo.id,
             label: processo.data.label,
             descricao: processo.data.descricao,
             sistemasUtilizados:processo.data.sistemasUtilizados.join(","),
@@ -24,8 +23,7 @@ export async function CreateProcessoService(processo: INodeProcesso) {
             type: processo.type,
             width: processo.width,
             zIndex: processo.zIndex,
-            usuarioId:processo.usuarioId
-            
+            usuarioId:iduser
         }
     })
     return nodesaved;

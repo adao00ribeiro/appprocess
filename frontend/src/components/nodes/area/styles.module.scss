@@ -1,10 +1,10 @@
 .area {
-    background-color: rgba(255, 0, 0, 0.2);
+    background-color: #8bc24c73;
     height: 100%;
     padding: 10px;
- 
+    
     h2 {
-        color: rgba(253, 239, 239, 0.952);
+        color: rgba(0, 0, 0, 0.952);
         text-align: center;
     }
 
@@ -13,6 +13,9 @@
         width: 100%;
         text-align: center;
         border: none;
+        font-size: 1rem;
+        outline: none;
+        
     }
 }
 

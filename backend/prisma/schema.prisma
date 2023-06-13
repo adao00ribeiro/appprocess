@@ -18,10 +18,16 @@ model Usuario {
   nodeareas     NodeArea[]
   nodeprocessos NodeProcesso[]
   edges         Edge[]
+  reactflow     ReactFlow?
 }
-
+model ReactFlow{
+   id            String         @id @default(uuid())
+   flowJson  String
+   usuarioId         String @unique
+   usuario           Usuario  @relation(fields: [usuarioId], references: [id])
+}
 model NodeArea {
-  id                String   @id
+  id                String    @id @default(uuid())
   label             String
   descricao         String?
   dragging          Boolean
@@ -42,7 +48,7 @@ model NodeArea {
 }
 
 model NodeProcesso {
-  id                 String   @id
+  id                 String    @id @default(uuid())
   label              String
   descricao          String?
   sistemasUtilizados String?
@@ -65,7 +71,7 @@ model NodeProcesso {
 }
 
 model Edge {
-  id           String  @id
+  id           String   @id @default(uuid())
   source       String
   sourceHandle String
   target       String

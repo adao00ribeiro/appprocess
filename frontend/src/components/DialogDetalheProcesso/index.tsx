@@ -1,4 +1,4 @@
-import { ChangeEvent,KeyboardEvent, useContext, useState } from "react";
+import { ChangeEvent,KeyboardEvent, useContext, useEffect, useState } from "react";
 import styles from "./styles.module.scss"
 import { AuthContext } from "../../context/AuthContext";
 import { PanelAddInfo } from "../PanelAddInfo";
@@ -14,11 +14,14 @@ export function DialogDetalheProcesso(props:IDialogDetalheProcesso) {
         isDraggable, setIsDraggable, dialogDetalheProcesso, setdialogDetalheProcesso,
         nodeSelecionado,setnodeSelecionado
     } = useContext(AuthContext);
-   
+  
     const [isShownSistema, setisShownSistema] = useState(false);
     const [isShownResponsaveis, setisShownResponsaveis] = useState(false);
     const [position, setPosition] = useState([0, 0]) // State to save the position where you 
+    useEffect(() => {
+        setdialogDetalheProcesso(document.getElementById("dialogDetalheProcesso") as HTMLDialogElement);
 
+    }, [setdialogDetalheProcesso]);
     const OpenPanelSistema = (event: React.MouseEvent<HTMLButtonElement>) => {
         setisShownSistema(true)
         setPosition([event.pageX, event.pageY]) // Save the pos where you clicked
@@ -50,7 +53,7 @@ export function DialogDetalheProcesso(props:IDialogDetalheProcesso) {
               descricao: event.target.value,
             },
           };
-        setnodeSelecionado(novo);
+         setnodeSelecionado(novo);
           props.setNodes(novo)
     }
     return (
@@ -95,14 +98,16 @@ export function DialogDetalheProcesso(props:IDialogDetalheProcesso) {
 
             {isShownResponsaveis &&
                <PanelAddInfo info={nodeSelecionado.data.responsaveis}
-               save={(responsaveis) => {
-                setnodeSelecionado({
-                  ...nodeSelecionado,
-                  data: {
-                    ...nodeSelecionado.data,
-                    responsaveis: responsaveis,
-                  },
-                });
+              save={(responsaveis) => {
+                const novo = {
+                    ...nodeSelecionado,
+                    data: {
+                      ...nodeSelecionado.data,
+                      responsaveis: responsaveis,
+                    },
+                  }
+                setnodeSelecionado(novo);
+                props.setNodes(novo)
               }}
                  title={"Responsaveis"} position={position} 
                  callback={closePanelResponsaveis}></PanelAddInfo>

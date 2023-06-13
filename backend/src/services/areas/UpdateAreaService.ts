@@ -1,12 +1,18 @@
-import { IArea } from "../../interfaces/IArea";
+
+import { INodeArea } from "../../interfaces/INodeArea";
 import prismaclient from "../../prisma";
 
-export async function UpdateAreaService(area: IArea) {
-    const areasaved = await prismaclient.area.update({
+export async function UpdateAreaService(area: INodeArea) {
+   
+    const areaupdate = await prismaclient.nodeArea.update({
         where: { id: area.id },
-        data: area
-    })
-
-    return areasaved;
+        data: {
+            positionX: area.position?.x,
+            positionY: area.position?.y,
+            positionAbsoluteX: area.positionAbsolute?.x,
+            positionAbsoluteY: area.positionAbsolute?.y,
+        },
+    });
+    return areaupdate;
 }
 

@@ -7,6 +7,14 @@ CREATE TABLE "Usuario" (
 );
 
 -- CreateTable
+CREATE TABLE "ReactFlow" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "flowJson" TEXT NOT NULL,
+    "usuarioId" TEXT NOT NULL,
+    CONSTRAINT "ReactFlow_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "Usuario" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "NodeArea" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "label" TEXT NOT NULL,
@@ -66,3 +74,6 @@ CREATE TABLE "Edge" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Usuario_email_key" ON "Usuario"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ReactFlow_usuarioId_key" ON "ReactFlow"("usuarioId");

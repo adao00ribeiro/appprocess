@@ -1,5 +1,5 @@
 :root {
-  --Background: #ffffff;
+  --Background:  rgb(240, 227, 255);;
   --ColorClaro: #efbedd;
   --ColorWhiteGray: #e6dddd;
   --ColorLilas: #f988ff;
@@ -20,7 +20,9 @@
 
 html,
 body {
+ 
   overflow-x: hidden;
+ 
 }
 
 h1 {
@@ -29,7 +31,7 @@ h1 {
 
 body {
   background-color: var(--Background);
-  color: white;
+
 }
 
 a {

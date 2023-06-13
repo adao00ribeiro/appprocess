@@ -1,10 +1,10 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import styles from './styles.module.scss'
 import React, { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AuthContext } from '../../context/AuthContext'
+import { toast } from 'react-toastify'
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -33,11 +33,16 @@ export default function Registrar() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (inputs.name == "" || inputs.email == "" || inputs.password1 == "" || inputs.password2 == "") {
-      alert("Preencha todos os campos")
+     
+      toast.error("Preencha todos os campos")
       return;
     }
+    if (inputs.password1 != inputs.password2 ) {
+      toast.error("As senhas digitadas não correspondem. Por favor, verifique e tente novamente.");
+    return;
+    }
     setLoading(true);
-    await signUp({ name: inputs.name, email: inputs.email, password: inputs.password1 });
+    await signUp({ nome: inputs.name, email: inputs.email, senha: inputs.password1 });
     setLoading(false);
   }
   return (
@@ -49,14 +54,13 @@ export default function Registrar() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className={styles.containerCenter}>
-
+        <div className={styles.registro}>
         <h1>Cadastre-se</h1>
-        <div className={styles.login}>
           <form onSubmit={handleSubmit}>
             <input type="text" value={inputs.name} onChange={handleInputs} name="name" placeholder='Seu nome'></input>
             <input type="email" value={inputs.email} onChange={handleInputs} name="email" placeholder='Seu email'></input>
             <input type="password" value={inputs.password1} onChange={handleInputs} name="password1" placeholder='Sua senha'></input>
-            <input type="password" value={inputs.password2} onChange={handleInputs} name="password2" placeholder='Sua senha'></input>
+            <input type="password" value={inputs.password2} onChange={handleInputs} name="password2" placeholder='Confirma senha'></input>
             <button type='submit'> Cadastrar</button>
           </form>
           <Link href={'/'}> Já possuo uma conta</Link>

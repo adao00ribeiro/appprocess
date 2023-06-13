@@ -7,6 +7,7 @@ export const RoutesUsuario = Router();
 
 
 RoutesUsuario.post("/usuarios", UsuarioController.Create);
+RoutesUsuario.post("/usuarios/json", UsuarioController.CreateJson);
 RoutesUsuario.get("/usuarios", IsAuthenticated, UsuarioController.ListAll);
 RoutesUsuario.get("/usuarios/info", IsAuthenticated, UsuarioController.GetAllInfo);
 RoutesUsuario.put("/usuarios", IsAuthenticated, UsuarioController.Update);

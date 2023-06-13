@@ -23,6 +23,11 @@ export default new class UsuarioController {
 
         res.json(await GetUsuarioByIdService(user_id));
     }
+    async CreateJson(req: Request, res: Response) {
+        const id = req.user_id;
+      
+        console.log(req.body);
+    }
 }
 
 

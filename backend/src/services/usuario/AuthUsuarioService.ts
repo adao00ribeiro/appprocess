@@ -20,7 +20,7 @@ export async function AuthUsuarioService({ email, senha }: IAuth) {
     //gerar token
     const token = sign(
         {
-            name: user.nome,
+            nome: user.nome,
             email: user.email
         },
         process.env.JWT_SECRET,
@@ -32,7 +32,7 @@ export async function AuthUsuarioService({ email, senha }: IAuth) {
 
     return {
         id: user.id,
-        name: user.nome,
+        nome: user.nome,
         email: user.email,
         token: token,
     }

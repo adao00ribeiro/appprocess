@@ -1,10 +1,13 @@
 import { NodeProps, Handle, Position, NodeResizeControl, NodeResizer } from "reactflow";
 import styles from "./styles.module.scss"
-import { memo, useState } from 'react';
-import { IArea } from "../../../interfaces/IArea";
+import { memo, useContext, useState } from 'react';
+import { AuthContext } from "../../../context/AuthContext";
 
-function NodeArea(props: IArea) {
 
+function NodeArea(props: NodeProps) {
+  const { 
+        nodeSelecionado,setnodeSelecionado
+    } = useContext(AuthContext);
     const [editing, setEditing] = useState(false);
     const [text, setText] = useState(props?.data?.label);
 
@@ -14,6 +17,15 @@ function NodeArea(props: IArea) {
         setEditing(true);
     };
     const handleInputChange = (event) => {
+         const novo = {
+            ...nodeSelecionado,
+            data: {
+              ...nodeSelecionado.data,
+              label: text,
+            },
+          }
+        setnodeSelecionado(novo);
+        props.data.update(novo);
         setText(event.target.value);
     };
     const handleInputBlur = () => {
@@ -22,8 +34,8 @@ function NodeArea(props: IArea) {
     };
 
     return (
-        <div className={styles.area} onClick={(event) => { console.log("entrer") }} onSelect={(event) => { console.log("entasdarer") }}>
-            <NodeResizer color={props.color} isVisible={props.selected} minWidth={250} minHeight={250}
+        <div className={styles.area} onClick={()=>{setnodeSelecionado(props)}} >
+            <NodeResizer  isVisible={props.selected} minWidth={250} minHeight={250}
             />
             <Handle type="target" position={Position.Left} />
             {editing ? (

@@ -6,7 +6,6 @@ export async function CreateAreaService(userid: string, area: INodeArea) {
 
     const areasaved = await prismaclient.nodeArea.create({
         data: {
-            id: area.id,
             label: area.data.label,
             descricao: area.data.descricao,
             dragging: area.dragging,
@@ -25,7 +24,26 @@ export async function CreateAreaService(userid: string, area: INodeArea) {
             usuarioId: userid
         }
     })
-    return areasaved;
+    const customizedUser = {
+        data: {
+            label: areasaved.label,
+            descricao: areasaved.descricao
+        },
+        dragging: areasaved.dragging,
+        height: areasaved.height,
+        id: areasaved.id,
+        parentNode: areasaved.parentNode,
+        position: { x: areasaved.positionX, y: areasaved.positionY },
+        positionAbsolute: { x: areasaved.positionAbsoluteX, y: areasaved.positionAbsoluteY },
+        style: {
+            width: areasaved.width,
+            height: areasaved.height
+        },
+        type: areasaved.type,
+        width: areasaved.width,
+        zIndex: areasaved.zIndex
+    }
+    return customizedUser;
 
 }
 

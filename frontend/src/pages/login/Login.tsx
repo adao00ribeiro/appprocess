@@ -36,14 +36,7 @@ export default function Login() {
   }
   return (
     <>
-      <Head>
-        <title>Acessar</title>
-        <meta name="description" content="A software to assist secretaries in organizing tasks and information." />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
       <div className={styles.containerCenter}>
-        <Image src="/LOGOSECRETARY.png" alt='Logo Secretary Helper' width={200} height={200} />
         <div className={styles.login}>
           <form onSubmit={handleLogin}>
             <input value={inputs.email} type="email" onChange={handleInput} name='email' placeholder='Seu email'></input>

@@ -5,8 +5,6 @@ import { AuthContext } from "../../../context/AuthContext";
 /*Permitir ver o detalhamento dos processos, como sistemas utilizados, pessoas
 responsáveis e documentação
 */
-
-
 export function NodeProcesso(props: NodeProps) {
     const { zoomOnScroll, setZoomOnScroll,
         isSelectable, setIsSelectable,
@@ -29,6 +27,7 @@ export function NodeProcesso(props: NodeProps) {
     };
 
     const handleInputChange = (event) => {
+      
         const novo = {
             ...nodeSelecionado,
             data: {
@@ -47,11 +46,10 @@ export function NodeProcesso(props: NodeProps) {
         setIsSelectable(true);
         setpanOnDrag(true);
         setIsDraggable(true);
-        props.data.update(props.id, text);
+      props.data.update(props.id, text);
     };
-
+  
     function openModal() {
-        setnodeSelecionado(props);
         setZoomOnScroll(false)
         setIsSelectable(false);
         setpanOnDrag(false);
@@ -60,7 +58,7 @@ export function NodeProcesso(props: NodeProps) {
     }
     return (
         <>
-            <div className={styles.processo} >
+            <div className={styles.processo} onClick={()=>{setnodeSelecionado(props)}}>
                 {editing ? (
                     <input
                         type="text"
@@ -71,7 +69,7 @@ export function NodeProcesso(props: NodeProps) {
                 ) : (
                     <span className={styles.areaTitle} onClick={handleTextClick}>{text}</span>
                 )}
-                <div className={styles.container} onKeyDown={()=>{console.log("entrer")}} onDoubleClick={() => { openModal() }}>
+                <div className={styles.container}  onDoubleClick={() => { openModal() }}>
                     <Handle id="top" type="target" position={Position.Top} onConnect={onConnect} />
                     <Handle id="right" type="source" position={Position.Right} />
                     <Handle id="bottom" type="source" position={Position.Bottom} />

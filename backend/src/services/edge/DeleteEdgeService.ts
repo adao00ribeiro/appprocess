@@ -1,7 +1,7 @@
 
 import prismaclient from "../../prisma";
 
-export async function DeleteAreaService(iduser: string,idarea : string) {
+export async function DeleteEdgeService(iduser: string,idarea : string) {
  // Verify if the area belongs to the user
  const area = await prismaclient.nodeArea.findUnique({
     where: {

@@ -10,19 +10,23 @@ import ReactFlow, {
   ConnectionMode,
   Node,
   updateEdge,
-  NodeProps
+  NodeProps,
+  Edge,
+  useReactFlow
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles.module.scss'
+import {BiExit} from 'react-icons/bi'
 import NodeArea from '../../components/nodes/area/index';
 import { NodeProcesso } from '../../components/nodes/processo';
 import { NodeSubProcesso } from '../../components/nodes/subprocesso';
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext, signOut } from '../../context/AuthContext';
 import { DialogDetalheProcesso } from '../../components/DialogDetalheProcesso';
 import DefaultEdge from '../../components/edges';
 import { api } from '../../services/apiClient';
 import { canSSRAuth } from '../../utils/canSSRAuth';
+
 
 const NODE_TYPES = {
   area: NodeArea,
@@ -32,11 +36,11 @@ const NODE_TYPES = {
 const EDGE_TYPES = {
   default: DefaultEdge
 }
-
-export default function DashBoard({ initial }) {
+const flowKey = 'example-flow';
+export default function DashBoard() {
 
   const edgeUpdateSuccessful = useRef(true);
-  const { user, zoomOnScroll, setZoomOnScroll,
+  const { user, setUser, zoomOnScroll, setZoomOnScroll,
     isSelectable, setIsSelectable,
     panOnDrag, setpanOnDrag,
     isDraggable, setIsDraggable,
@@ -44,7 +48,7 @@ export default function DashBoard({ initial }) {
   } = useContext(AuthContext);
   const reactFlowWrapper = useRef(null);
   const dragRef = useRef(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initial);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
 
@@ -55,23 +59,69 @@ export default function DashBoard({ initial }) {
       DeleteNode();
     }
   };
-  const memoizedUser = useMemo(() => user, [user]);
+  const onSave = useCallback(() => {
+
+    if (reactFlowInstance) {
+      const flow = reactFlowInstance.toObject();
+      localStorage.setItem(flowKey, JSON.stringify(flow));
+      if(!user.reactflow){
+        api.post('/v1/reactflow', { json: JSON.stringify(flow) }).then((response) => {
+          console.log("criado")
+          setUser({...user,reactflow:response.data});
+        }).catch((error) => {
+          console.log(error.response.data)
+        })
+      }else{
+       let newflow  =    user.reactflow;
+       newflow.flowJson = JSON.stringify(flow);
+       console.log(newflow)
+        api.put('/v1/reactflow', newflow ).then((response) => {
+          console.log("update")
+          setUser({...user,reactflow:response.data});
+        }).catch((error) => {
+          console.log(error.response.data)
+        })
+      }
+    }
+  }, [reactFlowInstance,user]);
+
+
+  const carregarHandle = useCallback(() => {
+      
+    const restoreFlow = async () => {
+     if(user.reactflow){
+      api.get(`/v1/reactflow/${user.reactflow.id}`).then((response) => {
+        const json = response.data.flowJson ;
+        const flow = JSON.parse(json);
+        const nodes = flow.nodes;
+        nodes.map((item)=>{
+          item.data.update = updateNode
+        })
+        if (flow) {
+          const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+          setNodes(nodes || []);
+          setEdges(flow.edges || []);
+        }
+      }).catch((error) => {
+        console.log(error.response)
+      })
+     }
+    
+    };
+    restoreFlow();
+  }, [setNodes,user]);
 
 
   useEffect(() => {
 
-
     document.addEventListener('keydown', onKeydown);
-
     return () => {
       document.removeEventListener('keydown', onKeydown);
     };
-
   }, [onKeydown]);
 
 
   const onConnect = useCallback((connection: Connection) => {
-
     setEdges((eds) => addEdge(connection, eds));
   }, []);
 
@@ -88,7 +138,6 @@ export default function DashBoard({ initial }) {
     if (!edgeUpdateSuccessful.current) {
       setEdges((eds) => eds.filter((e) => e.id !== edge.id));
     }
-
     edgeUpdateSuccessful.current = true;
   }, []);
 
@@ -98,8 +147,7 @@ export default function DashBoard({ initial }) {
 
   }, []);
   const onNodeMouseEnter = (event: React.MouseEvent, node: Node) => {
-    console.log(nodes);
-    console.log(edges)
+    
   }
   const onNodeMouseMove = (event: React.MouseEvent, node: Node) => {
 
@@ -149,9 +197,7 @@ export default function DashBoard({ initial }) {
         width: 250,
         zIndex: 1,
       }
-      api.post("/v1/areas", newNode).then((response) => {
-        console.log(response);
-      })
+
     } else if (type == "processo") {
       newNode =
       {
@@ -176,9 +222,7 @@ export default function DashBoard({ initial }) {
         width: 100,
         zIndex: 1,
       }
-      api.post("/v1/processos", newNode).then((response) => {
-        console.log(response);
-      })
+
     } else if (type == "subprocesso") {
       newNode =
       {
@@ -204,7 +248,6 @@ export default function DashBoard({ initial }) {
         width: 100,
         zIndex: 1,
       }
-      api.post("/v1/subprocessos", newNode)
     }
     setNodes((nds) => nds.concat(newNode));
   },
@@ -215,20 +258,21 @@ export default function DashBoard({ initial }) {
   };
   const updateNode = (nodeprops: NodeProps) => {
     setNodes((nodes) =>
-      nodes.map((n) => {
-        if (n.id == nodeprops.id) {
-          console.log("fez o update")
-          n.data.label = nodeprops.data.label;
-          n.data.descricao = nodeprops.data.descricao;
-          n.data.sistemasUtilizados = nodeprops.data.sistemasUtilizados;
-          n.data.responsaveis = nodeprops.data.responsaveis;
-        }
-        return n;
-      })
-    );
-  };
+    nodes.map((n) => {
+      if (n.id == nodeprops.id) {
+       
+        n.data.label = nodeprops.data.label;
+        n.data.descricao = nodeprops.data.descricao;
+        n.data.sistemasUtilizados = nodeprops.data.sistemasUtilizados;
+        n.data.responsaveis = nodeprops.data.responsaveis;
+      }
+      return n;
+    })
+  );
+};
   const onNodeDrag = (evt, node: Node) => {
     setTarget(GetTarget(node));
+
   };
   const GetTarget = (node: Node) => {
     // calculate the center point of the node from position and dimensions
@@ -255,23 +299,25 @@ export default function DashBoard({ initial }) {
       return;
     }
     if (node.type == "area") {
-      console.log("area nao é filho de ninguem")
+
       return;
     }
     if (target) {
       target.selected = false;
+
       const tempnodes = nodes.map((n) => {
         if (n.id == node.id && n.parentNode != target?.id) {
+
           n.parentNode = target.id;
           n.zIndex = 1;
           n.position = calculatePosition({ x: evt.x, y: evt.y }, n);
+
         }
         return n;
       })
       setNodes((nodes) =>
         tempnodes
       );
-      api.put("/v1/processos", { tempnodes });
     }
     node.zIndex = 2
     setTarget(null);
@@ -292,29 +338,38 @@ export default function DashBoard({ initial }) {
 
     return { x: childX, y: childY };
   };
-  const DeleteNode = () => {
-
+  const DeleteNode = async () => {
     const tempNodes = nodes.filter((n) => n.selected);
+    if(tempNodes.length == 0){
+      return;
+    }
     DeleteEdges(tempNodes[0].id)
-
     setNodes((nodes) =>
       nodes.filter((n) => !n.selected)
     );
   }
   const DeleteEdges = (idnode) => {
-    console.log(idnode);
     setEdges((edges) =>
       edges.filter((n) => n.source != idnode && n.target != idnode)
     );
+  }
+  const handleExit = async () => {
+    signOut();
   }
   return (
     <>
       <Head>
         <title>DashBoard</title>
-        <meta name="description" content="A software to assist secretaries in organizing tasks and information." />
+        <meta name="description" content="DashBoard" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <header className={styles.header}>
+        <button onClick={carregarHandle}>Carregar</button>
+        <button onClick={onSave}>Salvar</button>
+        <h1>{user.nome}</h1>
+        <button className={styles.btnExit} onClick={handleExit}> <BiExit size={40}></BiExit></button>
+      </header>
       <DialogDetalheProcesso
         setNodes={(nodeprops) => {
           updateNode(nodeprops)

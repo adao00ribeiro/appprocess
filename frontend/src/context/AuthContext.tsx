@@ -6,20 +6,26 @@ import { api } from "../services/apiClient";
 import { ToastContainer, toast } from 'react-toastify';
 import { NodeProps } from "reactflow";
 import { INodeArea } from "../interfaces/INodeArea";
+import { INodeProcesso } from "../interfaces/INodeProcesso";
+import { IEdges } from "../interfaces/IEdges";
+import { IReactFlow } from "../interfaces/IReactFlow";
 type SignInProps = {
     email: string;
     senha: string;
 }
 type SignUpProps = {
-    name: string;
+    nome: string;
     email: string;
-    password: string;
+    senha: string;
 }
 type UserProps = {
     id: string;
-    name: string;
+    nome: string;
     email: string;
     nodeareas: INodeArea[];
+    nodeprocessos: INodeProcesso[],
+    edges: IEdges[],
+    reactflow: IReactFlow
 }
 
 export type IMyContextProps = {
@@ -68,24 +74,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [isSelectable, setIsSelectable] = useState(true);
     const [panOnDrag, setpanOnDrag] = useState(true);
     const [isDraggable, setIsDraggable] = useState(true);
-    const [user, setUser] = useState<UserProps>({
-        id: "",
-        name: "",
-        email: "",
-        nodeareas: [],
-    });
+    const [user, setUser] = useState<UserProps>(undefined);
 
     const isAuthenticated = !!user;
     const [step, setStep] = useState(1);
     const [index, setIndex] = useState(0);
-    const [selectClient, setSelectClient] = useState({
-        id: "",
-        user_id: "",
-        name: "",
-        phone: "",
-        consult_date: "",
-        next_consultation_date: "",
-    })
 
     const [IsAltered, setIsAltered] = useState(false);
     const [dialogDetalheProcesso, setdialogDetalheProcesso] = useState<HTMLDialogElement>()
@@ -93,21 +86,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     //--------------------------------------
     useEffect(() => {
         setdialogDetalheProcesso(document.getElementById("dialogDetalheProcesso") as HTMLDialogElement);
-
         const { '@nextauth.token': token } = parseCookies();
+        
         if (token) {
             api.get('/v1/usuarios/info').then(response => {
-                const { id, name, email } = response.data;
-                const nodeareas: INodeArea[] = response.data.nodeareas;
-                setUser({ id, name, email, nodeareas })
-
+                const { id, nome, email, nodeareas, nodeprocessos, edges, reactflow } = response.data;
+                console.log(response.data)
+                setUser({ id, nome, email, nodeareas,nodeprocessos,edges,reactflow})
             }).catch(error => {
                 //se deu erro deslogamos o user.
                 signOut();
             });
         }
 
-    }, []);
+    }, [setdialogDetalheProcesso]);
 
     async function signIn({ email, senha }: SignInProps) {
 
@@ -115,8 +107,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const response = await api.post("/v1/session", {
                 email, senha
             })
-
-            const { id, name, token, nodeareas } = response.data;
+            console.log(response.data)
+            const { id, nome, token, nodeareas ,nodeprocessos,edges,reactflow} = response.data;
             setCookie(undefined, '@nextauth.token', token, {
                 maxAge: 60 * 60 * 24 * 30,
                 path: "/"
@@ -124,32 +116,40 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setUser(
                 {
                     id,
-                    name,
+                    nome,
                     email,
-                    nodeareas
+                    nodeareas,
+                    nodeprocessos,
+                    edges,
+                    reactflow
                 }
             )
             api.defaults.headers['Authorization'] = `Bearer ${token}`
-
             toast.success("Logado com sucesso")
             await setTimeout(() => {
-                Router.push("/dashboard")
+            Router.push("/dashboard")
             }, 1000);
 
         } catch (error) {
             toast.error("Email ou senha errado");
         }
     }
-    async function signUp({ name, email, password }: SignUpProps) {
-
+    async function signUp({ nome, email, senha }: SignUpProps) {
         try {
-            const response = await api.post("/users", {
-                name, email, password
+          const response = await api.post("/v1/usuarios", {
+                nome, email, senha
             })
+            toast.success("Cadastrado com sucesso",response.data);
+            await setTimeout(() => {
+                Router.push("/")
+            }, 1000);
             Router.push("/")
         } catch (error) {
-            console.log("erro ao cadastrar", error)
+            toast.error("erro ao cadastrar" + error.response.data.error)
         }
+       
+      
+      
     }
     async function GetArrayUsersApi() {
 

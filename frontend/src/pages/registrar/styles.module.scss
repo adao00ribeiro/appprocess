@@ -5,21 +5,22 @@
   align-items: center;
   justify-content: center;
 
+
   h1 {
-    color: white;
+    color: black;
   }
 }
 
-.login {
+.registro {
   margin-top: 1rem;
   width: 500px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
-  padding: 0rem 1.5rem;
-
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  padding: 1rem 1.5rem;
+  gap: 2rem;
   form {
     width: 90%;
     display: flex;
@@ -41,6 +42,7 @@
   }
 
   form button {
+    cursor: pointer;
     color: white;
     border: none;
     border-radius: 5px;
@@ -51,20 +53,20 @@
   }
 
   form button:hover {
-
+   
     background-color: #b353c0;
 
   }
 
   a {
-    margin-top: 1rem;
-    color: white;
+ 
+    color: black;
     font-weight: 400;
     text-align: center;
   }
 
   a:hover {
-    color: black;
+    color: white;
   }
 }
 
