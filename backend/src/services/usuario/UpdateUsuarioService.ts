@@ -1,12 +1,12 @@
-import { IArea } from "../../interfaces/IArea";
+
+import { IUsuario } from "../../interfaces/IUsuario";
 import prismaclient from "../../prisma";
 
-export async function UpdateUsuarioService(area: IArea) {
-    const areasaved = await prismaclient.area.update({
-        where: { id: area.id },
-        data: area
+export async function UpdateUsuarioService(usuario: IUsuario) {
+    const usuarioupdate = await prismaclient.usuario.update({
+        where: { id: usuario.id },
+        data: usuario
     })
-
-    return areasaved;
+    return usuarioupdate;
 }
 

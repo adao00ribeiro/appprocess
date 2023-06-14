@@ -1,8 +1,7 @@
-import { IArea } from "../../interfaces/IArea";
 import prismaclient from "../../prisma";
 
-export async function DeleteUsuarioService(id: number) {
-    const result = await prismaclient.area.delete({
+export async function DeleteUsuarioService(id: string) {
+    const result = await prismaclient.usuario.delete({
         where: { id: id }
     })
     return result;

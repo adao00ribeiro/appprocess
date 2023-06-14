@@ -1,20 +1,19 @@
 import prismaclient from "../../prisma";
 
-
 export async function GetUsuarioByIdService(id: string) {
     let user = await prismaclient.usuario.findUnique({
         where: { id },
         include: {
             nodeareas: true,
-            nodeprocessos:true,
-            edges : true,
-            reactflow:true
+            nodeprocessos: true,
+            edges: true,
+            reactflow: true
         }
     })
- 
+
     const customizedUser = {
-            ...user,
-            nodeareas: user.nodeareas.map(nodearea => ({
+        ...user,
+        nodeareas: user.nodeareas.map(nodearea => ({
             data: {
                 label: nodearea.label,
                 descricao: nodearea.descricao
@@ -55,7 +54,7 @@ export async function GetUsuarioByIdService(id: string) {
             zIndex: nodeprocesso.zIndex
         }))
     };
-   
+
     return customizedUser;
 
 }
