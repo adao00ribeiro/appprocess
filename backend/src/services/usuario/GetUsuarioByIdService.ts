@@ -55,7 +55,7 @@ export async function GetUsuarioByIdService(id: string) {
             zIndex: nodeprocesso.zIndex
         }))
     };
-    console.log(customizedUser)
+   
     return customizedUser;
 
 }

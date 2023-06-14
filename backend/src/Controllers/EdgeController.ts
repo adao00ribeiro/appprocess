@@ -15,7 +15,7 @@ export default new class EdgeController {
     }
     async Update(req: Request, res: Response) {
         const processo = req.body
-        console.log("update", processo);
+       
     }
     async Delete(req: Request, res: Response) {
         res.send("ok")

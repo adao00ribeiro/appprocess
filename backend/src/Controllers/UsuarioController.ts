@@ -25,8 +25,7 @@ export default new class UsuarioController {
     }
     async CreateJson(req: Request, res: Response) {
         const id = req.user_id;
-      
-        console.log(req.body);
+     
     }
 }
 

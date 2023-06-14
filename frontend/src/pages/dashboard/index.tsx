@@ -367,7 +367,7 @@ export default function DashBoard() {
       <header className={styles.header}>
         <button onClick={carregarHandle}>Carregar</button>
         <button onClick={onSave}>Salvar</button>
-        <h1>{user.nome}</h1>
+        <h1>{user?.nome}</h1>
         <button className={styles.btnExit} onClick={handleExit}> <BiExit size={40}></BiExit></button>
       </header>
       <DialogDetalheProcesso
