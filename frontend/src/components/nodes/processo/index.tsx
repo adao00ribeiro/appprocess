@@ -11,7 +11,7 @@ export function NodeProcesso(props: NodeProps) {
         panOnDrag, setpanOnDrag,
         isDraggable, setIsDraggable,
         dialogDetalheProcesso, setdialogDetalheProcesso,
-        nodeSelecionado,setnodeSelecionado
+        nodeSelecionado, setnodeSelecionado
     } = useContext(AuthContext);
 
     const [editing, setEditing] = useState(false);
@@ -27,14 +27,14 @@ export function NodeProcesso(props: NodeProps) {
     };
 
     const handleInputChange = (event) => {
-      
+
         const novo = {
             ...nodeSelecionado,
             data: {
-              ...nodeSelecionado.data,
-              label: text,
+                ...nodeSelecionado.data,
+                label: text,
             },
-          }
+        }
         setnodeSelecionado(novo);
         props.data.update(novo);
         setText(event.target.value);
@@ -46,9 +46,9 @@ export function NodeProcesso(props: NodeProps) {
         setIsSelectable(true);
         setpanOnDrag(true);
         setIsDraggable(true);
-      props.data.update(props.id, text);
+        props.data.update(props.id, text);
     };
-  
+
     function openModal() {
         setZoomOnScroll(false)
         setIsSelectable(false);
@@ -58,7 +58,7 @@ export function NodeProcesso(props: NodeProps) {
     }
     return (
         <>
-            <div className={styles.processo} onClick={()=>{setnodeSelecionado(props)}}>
+            <div className={styles.processo} onClick={() => { setnodeSelecionado(props) }}>
                 {editing ? (
                     <input
                         type="text"
@@ -69,7 +69,7 @@ export function NodeProcesso(props: NodeProps) {
                 ) : (
                     <span className={styles.areaTitle} onClick={handleTextClick}>{text}</span>
                 )}
-                <div className={styles.container}  onDoubleClick={() => { openModal() }}>
+                <div className={styles.container} onDoubleClick={() => { openModal() }}>
                     <Handle id="top" type="target" position={Position.Top} onConnect={onConnect} />
                     <Handle id="right" type="source" position={Position.Right} />
                     <Handle id="bottom" type="source" position={Position.Bottom} />

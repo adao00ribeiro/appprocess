@@ -17,7 +17,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles.module.scss'
-import {BiExit} from 'react-icons/bi'
+import { BiExit, BiRestaurant } from 'react-icons/bi'
 import NodeArea from '../../components/nodes/area/index';
 import { NodeProcesso } from '../../components/nodes/processo';
 import { NodeSubProcesso } from '../../components/nodes/subprocesso';
@@ -64,58 +64,59 @@ export default function DashBoard() {
     if (reactFlowInstance) {
       const flow = reactFlowInstance.toObject();
       localStorage.setItem(flowKey, JSON.stringify(flow));
-      if(!user.reactflow){
+      if (!user.reactflow) {
         api.post('/v1/reactflow', { json: JSON.stringify(flow) }).then((response) => {
           console.log("criado")
-          setUser({...user,reactflow:response.data});
+          setUser({ ...user, reactflow: response.data });
         }).catch((error) => {
           console.log(error.response.data)
         })
-      }else{
-       let newflow  =    user.reactflow;
-       newflow.flowJson = JSON.stringify(flow);
-       console.log(newflow)
-        api.put('/v1/reactflow', newflow ).then((response) => {
+      } else {
+        let newflow = user.reactflow;
+        newflow.flowJson = JSON.stringify(flow);
+        console.log(newflow)
+        api.put('/v1/reactflow', newflow).then((response) => {
           console.log("update")
-          setUser({...user,reactflow:response.data});
+          setUser({ ...user, reactflow: response.data });
         }).catch((error) => {
           console.log(error.response.data)
         })
       }
     }
-  }, [reactFlowInstance,user]);
+  }, [reactFlowInstance, user]);
 
 
   const carregarHandle = useCallback(() => {
-      
+
     const restoreFlow = async () => {
-     if(user.reactflow){
-      api.get(`/v1/reactflow/${user.reactflow.id}`).then((response) => {
-        const json = response.data.flowJson ;
-        const flow = JSON.parse(json);
-        const nodes = flow.nodes;
-        nodes.map((item)=>{
-          item.data.update = updateNode
+      if (user?.reactflow) {
+        api.get(`/v1/reactflow/${user.reactflow.id}`).then((response) => {
+          const json = response.data.flowJson;
+          const flow = JSON.parse(json);
+          const nodes = flow.nodes;
+          nodes.map((item) => {
+            item.data.update = updateNode
+          })
+          if (flow) {
+            const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+            setNodes(nodes || []);
+            setEdges(flow.edges || []);
+          }
+        }).catch((error) => {
+          console.log(error.response)
         })
-        if (flow) {
-          const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-          setNodes(nodes || []);
-          setEdges(flow.edges || []);
-        }
-      }).catch((error) => {
-        console.log(error.response)
-      })
-     }
-    
+      }
     };
     restoreFlow();
-  }, [setNodes,user]);
-
+  }, [setNodes, user]);
 
   useEffect(() => {
+    //problema
+    //carregarHandle();
 
     document.addEventListener('keydown', onKeydown);
     return () => {
+
       document.removeEventListener('keydown', onKeydown);
     };
   }, [onKeydown]);
@@ -147,7 +148,7 @@ export default function DashBoard() {
 
   }, []);
   const onNodeMouseEnter = (event: React.MouseEvent, node: Node) => {
-    
+
   }
   const onNodeMouseMove = (event: React.MouseEvent, node: Node) => {
 
@@ -258,18 +259,18 @@ export default function DashBoard() {
   };
   const updateNode = (nodeprops: NodeProps) => {
     setNodes((nodes) =>
-    nodes.map((n) => {
-      if (n.id == nodeprops.id) {
-       
-        n.data.label = nodeprops.data.label;
-        n.data.descricao = nodeprops.data.descricao;
-        n.data.sistemasUtilizados = nodeprops.data.sistemasUtilizados;
-        n.data.responsaveis = nodeprops.data.responsaveis;
-      }
-      return n;
-    })
-  );
-};
+      nodes.map((n) => {
+        if (n.id == nodeprops.id) {
+
+          n.data.label = nodeprops.data.label;
+          n.data.descricao = nodeprops.data.descricao;
+          n.data.sistemasUtilizados = nodeprops.data.sistemasUtilizados;
+          n.data.responsaveis = nodeprops.data.responsaveis;
+        }
+        return n;
+      })
+    );
+  };
   const onNodeDrag = (evt, node: Node) => {
     setTarget(GetTarget(node));
 
@@ -340,7 +341,7 @@ export default function DashBoard() {
   };
   const DeleteNode = async () => {
     const tempNodes = nodes.filter((n) => n.selected);
-    if(tempNodes.length == 0){
+    if (tempNodes.length == 0) {
       return;
     }
     DeleteEdges(tempNodes[0].id)
