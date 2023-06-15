@@ -1,6 +1,6 @@
 import { NodeProps, Handle, Position } from "reactflow";
 import styles from "./styles.module.scss"
-import { useContext, useState } from "react";
+import { useContext, useState, KeyboardEvent } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 
 
@@ -10,12 +10,12 @@ export function NodeSubProcesso(props: NodeProps) {
         panOnDrag, setpanOnDrag,
         isDraggable, setIsDraggable,
         dialogDetalheProcesso, setdialogDetalheProcesso,
-        nodeSelecionado,setnodeSelecionado
+        nodeSelecionado, setnodeSelecionado
     } = useContext(AuthContext);
     const [editing, setEditing] = useState(false);
     const [text, setText] = useState(props.data.label);
     const onConnect = (params) => console.log('handle onConnect', params);
-    
+
     const handleTextClick = () => {
         setEditing(true);
         setZoomOnScroll(false);
@@ -23,15 +23,19 @@ export function NodeSubProcesso(props: NodeProps) {
         setpanOnDrag(false);
         setIsDraggable(false);
     };
-
+    const onkeydown = (event: KeyboardEvent<HTMLInputElement>) => {
+        if (event.key == 'Enter') {
+            handleInputBlur();
+        }
+    }
     const handleInputChange = (event) => {
         const novo = {
             ...nodeSelecionado,
             data: {
-              ...nodeSelecionado.data,
-              label: text,
+                ...nodeSelecionado.data,
+                label: text,
             },
-          }
+        }
         setnodeSelecionado(novo);
         props.data.update(novo);
         setText(event.target.value);
@@ -43,10 +47,10 @@ export function NodeSubProcesso(props: NodeProps) {
         setIsSelectable(true);
         setpanOnDrag(true);
         setIsDraggable(true);
-      props.data.update(props.id, text);
+        props.data.update(props.id, text);
     };
     function openModal() {
-              
+
         setZoomOnScroll(false)
         setIsSelectable(false);
         setpanOnDrag(false);
@@ -54,13 +58,14 @@ export function NodeSubProcesso(props: NodeProps) {
         dialogDetalheProcesso.showModal();
     }
     return (
-        <div className={styles.subprocesso} onClick={()=>{setnodeSelecionado(props)}} onDoubleClick={() => { openModal() }}>
+        <div className={styles.subprocesso} onClick={() => { setnodeSelecionado(props) }} onDoubleClick={() => { openModal() }}>
             <Handle id="left" type="target" position={Position.Left} onConnect={onConnect} isConnectable />
             <Handle id="right" type="source" position={Position.Right} />
-             {editing ? (
+            {editing ? (
                 <input
                     type="text"
                     value={text}
+                    onKeyDown={onkeydown}
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
                     autoFocus

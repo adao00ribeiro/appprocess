@@ -1,4 +1,4 @@
-import { NodeProps, Handle, Position, NodeResizeControl, NodeResizer } from "reactflow";
+import { NodeProps, Handle, Position, NodeResizer } from "reactflow";
 import styles from "./styles.module.scss"
 import { KeyboardEvent, memo, useContext, useState } from 'react';
 import { AuthContext } from "../../../context/AuthContext";

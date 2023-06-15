@@ -1,6 +1,6 @@
 import { NodeProps, Handle, Position } from "reactflow";
 import styles from "./styles.module.scss"
-import { useContext, useEffect, useState } from "react";
+import { useContext, KeyboardEvent, useState } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 /*Permitir ver o detalhamento dos processos, como sistemas utilizados, pessoas
 responsáveis e documentação
@@ -39,7 +39,11 @@ export function NodeProcesso(props: NodeProps) {
         props.data.update(novo);
         setText(event.target.value);
     };
-
+    const onkeydown = (event: KeyboardEvent<HTMLInputElement>) => {
+        if (event.key == 'Enter') {
+            handleInputBlur();
+        }
+    }
     const handleInputBlur = () => {
         setEditing(false);
         setZoomOnScroll(true);
@@ -63,6 +67,7 @@ export function NodeProcesso(props: NodeProps) {
                     <input
                         type="text"
                         value={text}
+                        onKeyDown={onkeydown}
                         onChange={handleInputChange}
                         onBlur={handleInputBlur}
                     />
