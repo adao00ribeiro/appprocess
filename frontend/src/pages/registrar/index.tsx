@@ -5,7 +5,7 @@ import React, { ChangeEvent, FormEvent, useContext, useEffect, useState } from '
 import Link from 'next/link'
 import { AuthContext } from '../../context/AuthContext'
 import { toast } from 'react-toastify'
-
+import { SignUp } from './../../context/SignUp'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -33,16 +33,16 @@ export default function Registrar() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (inputs.name == "" || inputs.email == "" || inputs.password1 == "" || inputs.password2 == "") {
-     
+
       toast.error("Preencha todos os campos")
       return;
     }
-    if (inputs.password1 != inputs.password2 ) {
+    if (inputs.password1 != inputs.password2) {
       toast.error("As senhas digitadas não correspondem. Por favor, verifique e tente novamente.");
-    return;
+      return;
     }
     setLoading(true);
-    await signUp({ nome: inputs.name, email: inputs.email, senha: inputs.password1 });
+    await SignUp({ nome: inputs.name, email: inputs.email, senha: inputs.password1 });
     setLoading(false);
   }
   return (
@@ -55,7 +55,7 @@ export default function Registrar() {
       </Head>
       <div className={styles.containerCenter}>
         <div className={styles.registro}>
-        <h1>Cadastre-se</h1>
+          <h1>Cadastre-se</h1>
           <form onSubmit={handleSubmit}>
             <input type="text" value={inputs.name} onChange={handleInputs} name="name" placeholder='Seu nome'></input>
             <input type="email" value={inputs.email} onChange={handleInputs} name="email" placeholder='Seu email'></input>

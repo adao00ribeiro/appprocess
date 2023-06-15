@@ -1,5 +1,4 @@
 import Head from 'next/head'
-
 import ReactFlow, {
   addEdge,
   Background,
@@ -11,22 +10,21 @@ import ReactFlow, {
   Node,
   updateEdge,
   NodeProps,
-  Edge,
-  useReactFlow
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import styles from './styles.module.scss'
-import { BiExit, BiRestaurant } from 'react-icons/bi'
+import { BiExit } from 'react-icons/bi'
 import NodeArea from '../../components/nodes/area/index';
 import { NodeProcesso } from '../../components/nodes/processo';
 import { NodeSubProcesso } from '../../components/nodes/subprocesso';
-import { AuthContext, signOut } from '../../context/AuthContext';
+import { SignOut } from '../../context/signOut'
+import { AuthContext } from '../../context/AuthContext';
 import { DialogDetalheProcesso } from '../../components/DialogDetalheProcesso';
 import DefaultEdge from '../../components/edges';
 import { api } from '../../services/apiClient';
 import { canSSRAuth } from '../../utils/canSSRAuth';
-
+import { isValidConnection } from './IsValidation';
 
 const NODE_TYPES = {
   area: NodeArea,
@@ -355,7 +353,7 @@ export default function DashBoard() {
     );
   }
   const handleExit = async () => {
-    signOut();
+    SignOut();
   }
   return (
     <>
@@ -385,6 +383,8 @@ export default function DashBoard() {
           defaultEdgeOptions={{
             type: 'default',
           }}
+
+          isValidConnection={(connection) => { return isValidConnection(connection, nodes, edges) }}
           onNodeMouseMove={onNodeMouseMove}
           onNodeMouseEnter={onNodeMouseEnter}
           onNodeMouseLeave={onNodeMouseLeave}
