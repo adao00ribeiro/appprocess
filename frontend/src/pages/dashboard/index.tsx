@@ -25,6 +25,7 @@ import DefaultEdge from '../../components/edges';
 import { api } from '../../services/apiClient';
 import { canSSRAuth } from '../../utils/canSSRAuth';
 import { isValidConnection } from './IsValidation';
+import { toast } from 'react-toastify';
 
 const NODE_TYPES = {
   area: NodeArea,
@@ -64,20 +65,19 @@ export default function DashBoard() {
       localStorage.setItem(flowKey, JSON.stringify(flow));
       if (!user.reactflow) {
         api.post('/v1/reactflow', { json: JSON.stringify(flow) }).then((response) => {
-          console.log("criado")
           setUser({ ...user, reactflow: response.data });
+          toast.success("Salvado");
         }).catch((error) => {
           console.log(error.response.data)
         })
       } else {
         let newflow = user.reactflow;
         newflow.flowJson = JSON.stringify(flow);
-        console.log(newflow)
         api.put('/v1/reactflow', newflow).then((response) => {
-          console.log("update")
+          toast.success("Atualizado");
           setUser({ ...user, reactflow: response.data });
         }).catch((error) => {
-          console.log(error.response.data)
+          toast.success(error?.response?.data);
         })
       }
     }
